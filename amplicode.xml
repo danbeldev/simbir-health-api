@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AmplicodeDatabaseMigrationSettings" lastSelectedDirectory="account-service/src/main/resources/db" />
+  <component name="AmplicodePersistenceUnitSettings">
+    <persistence-units>
+      <persistence-unit moduleName="account-service.main" name="Default">
+        <packages>
+          <package value="ru.simbir.health.accountservice" />
+        </packages>
+      </persistence-unit>
+    </persistence-units>
+  </component>
+</project>

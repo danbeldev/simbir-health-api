@@ -17,6 +17,7 @@ import ru.simbir.health.accountservice.features.user.repositories.UserRepository
 import ru.simbir.health.accountservice.features.user.repositories.UserRoleRepository;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,7 +83,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void softDelete(long id) {
         var user = getById(id);
-        user.setIsDeleted(false);
+        user.setIsDeleted(true);
         userRepository.save(user);
     }
 
@@ -123,9 +124,12 @@ public class UserServiceImpl implements UserService {
 
     private void updateRoles(UserEntity user, List<String> roles) {
         if (roles != null && !roles.isEmpty()) {
-            userRoleRepository.deleteAllByUserId(user.getId());
+            Set<String> existingRoleNames = user.getRoles().stream()
+                    .map(role -> role.getId().getRole().name())
+                    .collect(Collectors.toSet());
 
-            List<UserRoleEntity> newRoles = roles.stream()
+            List<UserRoleEntity> rolesToAdd = roles.stream()
+                    .filter(roleName -> !existingRoleNames.contains(roleName))
                     .map(roleName -> {
                         var userRoleEntity = new UserRoleEntity();
                         var userRoleId = new UserRoleEntityId();
@@ -133,10 +137,19 @@ public class UserServiceImpl implements UserService {
                         userRoleId.setRole(UserRoleEntityId.Role.valueOf(roleName));
                         userRoleEntity.setId(userRoleId);
                         return userRoleEntity;
-                    })
+                    }).collect(Collectors.toList());
+
+            List<UserRoleEntity> rolesToRemove = user.getRoles().stream()
+                    .filter(role -> !roles.contains(role.getId().getRole().name()))
                     .collect(Collectors.toList());
 
-            userRoleRepository.saveAll(newRoles);
+            if (!rolesToAdd.isEmpty()) {
+                userRoleRepository.saveAll(rolesToAdd);
+            }
+
+            if (!rolesToRemove.isEmpty()) {
+                userRoleRepository.deleteAll(rolesToRemove);
+            }
         }
     }
 }

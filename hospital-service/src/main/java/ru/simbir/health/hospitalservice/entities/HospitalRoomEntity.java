@@ -11,17 +11,9 @@ import java.util.Objects;
 @Setter
 @Entity(name = "hospital_rooms")
 public class HospitalRoomEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
 
-    @Column(name = "name", nullable = false, length = 48)
-    private String name;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "hospital_id", nullable = false)
-    private HospitalEntity hospital;
+    @EmbeddedId
+    private HospitalRoomEntityId id;
 
     @Override
     public final boolean equals(Object o) {
@@ -36,13 +28,12 @@ public class HospitalRoomEntity {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+        return Objects.hash(id);
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "(" +
-                "id = " + id + ", " +
-                "name = " + name + ")";
+                "EmbeddedId = " + id + ")";
     }
 }

@@ -1,0 +1,49 @@
+services:
+  account-service:
+    image: account-service:latest
+    build: account-service
+    restart: "no"
+    ports:
+      - "8080:8080"
+    env_file: .env
+  document-service:
+    image: document-service:latest
+    build: document-service
+    restart: "no"
+    ports:
+      - "8083:8083"
+    env_file: .env
+  hospital-service:
+    image: hospital-service:latest
+    build: hospital-service
+    restart: "no"
+    ports:
+      - "8081:8081"
+    env_file: .env
+  timetable-service:
+    image: timetable-service:latest
+    build: timetable-service
+    restart: "no"
+    ports:
+      - "8082:8082"
+    env_file: .env
+  postgres:
+    image: postgres:17.0
+    restart: "no"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql-scripts/:/docker-entrypoint-initdb.d/
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: simbir-health
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+volumes:
+  postgres_data:

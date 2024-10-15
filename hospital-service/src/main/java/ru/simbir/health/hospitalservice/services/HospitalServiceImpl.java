@@ -1,6 +1,7 @@
 package ru.simbir.health.hospitalservice.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.simbir.health.hospitalservice.dto.params.CreateOrUpdateHospitalParams;
 import ru.simbir.health.hospitalservice.entities.HospitalEntity;
 import ru.simbir.health.hospitalservice.entities.HospitalRoomEntity;
+import ru.simbir.health.hospitalservice.entities.HospitalRoomEntityId;
 import ru.simbir.health.hospitalservice.repositories.HospitalRepository;
 import ru.simbir.health.hospitalservice.repositories.HospitalRoomRepository;
 
@@ -83,21 +85,23 @@ public class HospitalServiceImpl implements HospitalService {
     private void updateRooms(HospitalEntity hospital, List<String> rooms) {
         if (rooms != null && !rooms.isEmpty()) {
             Set<String> existingRoomNames = hospital.getRooms().stream()
-                    .map(HospitalRoomEntity::getName)
+                    .map(h -> h.getId().getName())
                     .collect(Collectors.toSet());
 
             List<HospitalRoomEntity> roomsToAdd = rooms.stream()
                     .filter(roomName -> !existingRoomNames.contains(roomName))
                     .map(roomName -> {
                         var hospitalRoomEntity = new HospitalRoomEntity();
-                        hospitalRoomEntity.setHospital(hospital);
-                        hospitalRoomEntity.setName(roomName);
+                        var id = new HospitalRoomEntityId();
+                        id.setHospital(hospital);
+                        id.setName(roomName);
+                        hospitalRoomEntity.setId(id);
                         return hospitalRoomEntity;
                     })
                     .collect(Collectors.toList());
 
             List<HospitalRoomEntity> roomsToRemove = hospital.getRooms().stream()
-                    .filter(room -> !rooms.contains(room.getName()))
+                    .filter(room -> !rooms.contains(room.getId().getName()))
                     .collect(Collectors.toList());
 
             if (!roomsToAdd.isEmpty()) {

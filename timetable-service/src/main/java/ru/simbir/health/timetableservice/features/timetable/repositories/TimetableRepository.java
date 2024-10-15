@@ -10,9 +10,9 @@ import java.util.Optional;
 
 public interface TimetableRepository extends JpaRepository<TimetableEntity, Long>, JpaSpecificationExecutor<TimetableEntity> {
 
-    @Query("SELECT t FROM timetables t WHERE t.isDeleted == FALSE")
+    @Query("SELECT t FROM timetables t WHERE t.isDeleted = FALSE")
     List<TimetableEntity> findAllActive();
 
-    @Query("SELECT t FROM timetables t WHERE t.id = ?1 AND t.isDeleted == FALSE")
+    @Query("SELECT t FROM timetables t WHERE t.id = ?1 AND t.isDeleted = FALSE")
     Optional<TimetableEntity> finActiveById(Long id);
 }

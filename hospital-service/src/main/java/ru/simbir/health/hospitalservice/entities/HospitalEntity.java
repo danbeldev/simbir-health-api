@@ -30,7 +30,7 @@ public class HospitalEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "hospital")
+    @OneToMany(mappedBy = "id.hospital")
     private Set<HospitalRoomEntity> rooms = new LinkedHashSet<>();
 
     @Override

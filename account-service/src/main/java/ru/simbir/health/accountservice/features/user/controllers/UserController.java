@@ -1,10 +1,12 @@
 package ru.simbir.health.accountservice.features.user.controllers;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.simbir.health.accountservice.features.security.dto.JwtResponseDto;
+import ru.simbir.health.accountservice.features.security.dto.JwtValidateResponseDto;
 import ru.simbir.health.accountservice.features.security.dto.params.JwtRefreshParams;
 import ru.simbir.health.accountservice.features.security.dto.params.SignInParams;
 import ru.simbir.health.accountservice.features.security.dto.params.SignUpParams;
@@ -13,35 +15,38 @@ import ru.simbir.health.accountservice.features.security.services.UserSecuritySe
 import ru.simbir.health.accountservice.features.user.dto.params.AdminCreateOrUpdateUserParams;
 import ru.simbir.health.accountservice.features.user.dto.params.CreateOrUpdateUserParams;
 import ru.simbir.health.accountservice.features.user.dto.UserEntityDto;
+import ru.simbir.health.accountservice.features.user.entities.role.UserRoleEntityId;
 import ru.simbir.health.accountservice.features.user.mappers.UserEntityMapper;
 import ru.simbir.health.accountservice.features.user.services.UserService;
 
+import java.util.Collection;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/Authentication")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
     private final UserSecurityService userSecurityService;
+
     private final UserEntityMapper userEntityMapper;
 
-    @PostMapping("/SignUp")
+    @PostMapping("/Authentication/SignUp")
     public JwtResponseDto signUp(
             @RequestBody SignUpParams params
     ) {
         return userSecurityService.signUp(params);
     }
 
-    @PostMapping("/SignIn")
+    @PostMapping("/Authentication/SignIn")
     public JwtResponseDto signIn(
             @RequestBody SignInParams params
     ) {
         return userSecurityService.signIn(params);
     }
 
-    @PutMapping("/SignOut")
+    @PutMapping("/Authentication/SignOut")
     @SecurityRequirement(name = "bearerAuth")
     public void signOut(
             @AuthenticationPrincipal JwtUserDetails jwtUserDetails
@@ -49,21 +54,21 @@ public class UserController {
         userSecurityService.signOut(jwtUserDetails.getTokenId());
     }
 
-    @GetMapping("/Validate")
-    public boolean validateToken(
+    @GetMapping("/Authentication/Validate")
+    public JwtValidateResponseDto validateToken(
             @RequestParam String accessToken
     ) {
         return userSecurityService.validateToken(accessToken);
     }
 
-    @PostMapping("/Refresh")
+    @PostMapping("/Authentication/Refresh")
     public JwtResponseDto refreshToken(
             @RequestBody JwtRefreshParams params
     ) {
         return userSecurityService.refreshToken(params);
     }
 
-    @GetMapping("/Me")
+    @GetMapping("/Accounts/Me")
     @SecurityRequirement(name = "bearerAuth")
     public UserEntityDto getInfo(
             @AuthenticationPrincipal JwtUserDetails jwtUserDetails
@@ -71,7 +76,7 @@ public class UserController {
         return userEntityMapper.toDto(userService.getById(jwtUserDetails.getUserId()));
     }
 
-    @PutMapping("/Update")
+    @PutMapping("/Accounts/Update")
     @SecurityRequirement(name = "bearerAuth")
     public void update(
             @RequestBody CreateOrUpdateUserParams params,
@@ -80,7 +85,7 @@ public class UserController {
         userService.update(jwtUserDetails.getUserId(), params);
     }
 
-    @GetMapping
+    @GetMapping("/Accounts")
     @SecurityRequirement(name = "bearerAuth")
     public List<UserEntityDto> getAll(
             @RequestParam(defaultValue = "0") int from,
@@ -89,7 +94,7 @@ public class UserController {
         return userService.getAll(from, count).getContent().stream().map(userEntityMapper::toDto).toList();
     }
 
-    @PostMapping
+    @PostMapping("/Accounts")
     @SecurityRequirement(name = "bearerAuth")
     public UserEntityDto create(
             @RequestBody AdminCreateOrUpdateUserParams params
@@ -97,7 +102,7 @@ public class UserController {
         return userEntityMapper.toDto(userService.create(params));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/Accounts/{id}")
     @SecurityRequirement(name = "bearerAuth")
     public void update(
             @PathVariable long id,
@@ -106,11 +111,21 @@ public class UserController {
         userService.update(id, params);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/Accounts/{id}")
     @SecurityRequirement(name = "bearerAuth")
     public void delete(
             @PathVariable long id
     ) {
         userService.softDelete(id);
+    }
+
+    @Hidden
+    @GetMapping("/Accounts/{id}/Is-Exists")
+    public boolean isExists(
+            @PathVariable long id,
+            @RequestParam Collection<UserRoleEntityId.Role> roles,
+            @RequestParam(required = false, defaultValue = "false") boolean requireAll
+    ) {
+        return userService.isExists(id, roles, requireAll);
     }
 }

@@ -43,6 +43,14 @@ public class HospitalController {
         return hospitalService.getAllRoomsByHospitalId(id).stream().map(hospitalRoomEntityMapper::toDto).toList();
     }
 
+    @GetMapping("/{hospitalId}/Room/{room}/Validation")
+    boolean validationHospitalAndRoom(
+            @PathVariable long hospitalId,
+            @PathVariable String room
+    ) {
+        return hospitalService.validationHospitalAndRoom(hospitalId, room);
+    }
+
     @PostMapping
     public HospitalEntityDto create(
             @RequestBody CreateOrUpdateHospitalParams params

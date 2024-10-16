@@ -1,7 +1,6 @@
 package ru.simbir.health.hospitalservice.services;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
@@ -43,7 +42,7 @@ public class HospitalServiceImpl implements HospitalService {
     @Override
     @Transactional(readOnly = true)
     public Set<HospitalRoomEntity> getAllRoomsByHospitalId(long id) {
-        var hospital =  hospitalRepository.findActiveByIdWithRooms(id);
+        var hospital = hospitalRepository.findActiveByIdWithRooms(id);
 
         if (hospital.isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Hospital not found with id: " + id);
@@ -80,6 +79,24 @@ public class HospitalServiceImpl implements HospitalService {
         var hospital = getById(id);
         hospital.setIsDeleted(true);
         hospitalRepository.save(hospital);
+    }
+
+    @Override
+    @Transactional(readOnly = true, noRollbackFor = ResponseStatusException.class)
+    public boolean validationHospitalAndRoom(long hospitalId, String roomName) {
+        Set<HospitalRoomEntity> rooms;
+
+        try {
+            rooms = getAllRoomsByHospitalId(hospitalId);
+        } catch (ResponseStatusException e) {
+            return false;
+        }
+
+        for (HospitalRoomEntity room : rooms) {
+            if (room.getId().getName().equals(roomName)) return true;
+        }
+
+        return false;
     }
 
     private void updateRooms(HospitalEntity hospital, List<String> rooms) {

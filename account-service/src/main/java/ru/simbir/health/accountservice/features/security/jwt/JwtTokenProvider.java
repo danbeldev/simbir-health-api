@@ -131,9 +131,15 @@ public class JwtTokenProvider {
         return UUID.fromString(tokenId);
     }
 
-    public Authentication getAuthorization(final String token) {
-        final UUID tokenId = getTokenIdWithAccessToken(token);
-        final String username = getUsernameWithAccessToken(token);
+    public UserDetails getUserDetailsByAccessToken(final String accessToken) {
+        final UUID tokenId = getTokenIdWithAccessToken(accessToken);
+        final String username = getUsernameWithAccessToken(accessToken);
+        return getUserDetailsByUsername(tokenId, username);
+    }
+
+    public Authentication getAuthorization(final String accessToken) {
+        final UUID tokenId = getTokenIdWithAccessToken(accessToken);
+        final String username = getUsernameWithAccessToken(accessToken);
         final UserDetails userDetails = getUserDetailsByUsername(tokenId, username);
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }

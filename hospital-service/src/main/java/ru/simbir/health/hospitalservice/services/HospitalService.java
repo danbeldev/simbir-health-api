@@ -20,4 +20,6 @@ public interface HospitalService {
     void update(long id, CreateOrUpdateHospitalParams params);
 
     void softDelete(long id);
+
+    boolean validationHospitalAndRoom(long hospitalId, String room);
 }

@@ -4,6 +4,9 @@ import org.springframework.data.domain.Slice;
 import ru.simbir.health.accountservice.features.user.dto.params.AdminCreateOrUpdateUserParams;
 import ru.simbir.health.accountservice.features.user.dto.params.CreateOrUpdateUserParams;
 import ru.simbir.health.accountservice.features.user.entities.UserEntity;
+import ru.simbir.health.accountservice.features.user.entities.role.UserRoleEntityId;
+
+import java.util.Collection;
 
 public interface UserService {
 
@@ -26,4 +29,6 @@ public interface UserService {
     UserEntity create(UserEntity user);
 
     void softDelete(long id);
+
+    boolean isExists(long id, Collection<UserRoleEntityId.Role> roles, boolean requireAll);
 }

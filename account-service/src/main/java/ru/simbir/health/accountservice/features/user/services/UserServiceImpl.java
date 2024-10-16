@@ -16,6 +16,7 @@ import ru.simbir.health.accountservice.features.user.entities.role.UserRoleEntit
 import ru.simbir.health.accountservice.features.user.repositories.UserRepository;
 import ru.simbir.health.accountservice.features.user.repositories.UserRoleRepository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -85,6 +86,27 @@ public class UserServiceImpl implements UserService {
         var user = getById(id);
         user.setIsDeleted(true);
         userRepository.save(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true, noRollbackFor = ResponseStatusException.class)
+    public boolean isExists(long id, Collection<UserRoleEntityId.Role> roles, boolean requireAll) {
+        UserEntity user;
+        try {
+            user = getById(id);
+        } catch (ResponseStatusException e) {
+            return false;
+        }
+
+        Set<UserRoleEntityId.Role> userRoles = user.getRoles().stream()
+                .map(r -> r.getId().getRole())
+                .collect(Collectors.toSet());
+
+        if (requireAll) {
+            return userRoles.containsAll(roles);
+        } else {
+            return roles.stream().anyMatch(userRoles::contains);
+        }
     }
 
     @Override

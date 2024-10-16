@@ -7,10 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.simbir.health.accountservice.features.security.dto.JwtResponseDto;
+import ru.simbir.health.accountservice.features.security.dto.JwtValidateResponseDto;
 import ru.simbir.health.accountservice.features.security.dto.params.JwtRefreshParams;
 import ru.simbir.health.accountservice.features.security.dto.params.SignInParams;
 import ru.simbir.health.accountservice.features.security.dto.params.SignUpParams;
 import ru.simbir.health.accountservice.features.security.jwt.JwtTokenProvider;
+import ru.simbir.health.accountservice.features.security.jwt.JwtUserDetails;
 import ru.simbir.health.accountservice.features.security.services.activeToken.ActiveTokenService;
 import ru.simbir.health.accountservice.features.user.entities.UserEntity;
 import ru.simbir.health.accountservice.features.user.services.UserService;
@@ -61,8 +63,10 @@ public class UserSecurityServiceImpl implements UserSecurityService {
     }
 
     @Override
-    public boolean validateToken(String accessToken) {
-        return jwtTokenProvider.validateAccessToken(accessToken);
+    @Transactional(readOnly = true)
+    public JwtValidateResponseDto validateToken(String accessToken) {
+        var authorization = (JwtUserDetails) jwtTokenProvider.getUserDetailsByAccessToken(accessToken);
+        return new JwtValidateResponseDto(authorization.getUserId(), authorization.getAuthorities());
     }
 
     @Override

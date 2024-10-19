@@ -56,7 +56,7 @@ public class TimetableAppointmentServiceImpl implements TimetableAppointmentServ
         var timetable = timetableService.getById(timetableId);
         var appointment = new TimetableAppointmentEntity();
         appointment.setTime(time);
-        appointment.setId(userId);
+        appointment.setUserId(userId);
         appointment.setTimetable(timetable);
         return timetableAppointmentRepository.save(appointment);
     }

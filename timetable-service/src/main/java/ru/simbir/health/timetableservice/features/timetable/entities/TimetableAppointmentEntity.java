@@ -20,7 +20,7 @@ public class TimetableAppointmentEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "timetable_id", nullable = false)
+    @JoinColumn(name = "timetable_id")
     private TimetableEntity timetable;
 
     @NotNull

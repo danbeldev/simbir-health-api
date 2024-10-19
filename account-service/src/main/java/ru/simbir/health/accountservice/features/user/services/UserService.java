@@ -12,11 +12,15 @@ public interface UserService {
 
     UserEntity getById(long id);
 
+    UserEntity getById(long id, UserRoleEntityId.Role role);
+
     UserEntity getByUsername(String username);
 
     UserEntity getByUsernameWithRoles(String username);
 
     Slice<UserEntity> getAll(int offset, int limit);
+
+    Slice<UserEntity> getAll(int offset, int limit, String nameFilter, UserRoleEntityId.Role role);
 
     void update(long id, AdminCreateOrUpdateUserParams params);
 

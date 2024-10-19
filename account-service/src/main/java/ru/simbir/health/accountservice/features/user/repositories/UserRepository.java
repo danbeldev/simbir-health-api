@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.simbir.health.accountservice.features.user.entities.UserEntity;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
@@ -26,4 +27,11 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     @Query("SELECT u FROM UserEntity u WHERE u.isDeleted = false")
     Slice<UserEntity> findSliceOfActiveUsers(Pageable pageable);
+
+    @Query("SELECT u FROM UserEntity u WHERE u.isDeleted = false")
+    List<UserEntity> findAllActiveUsers();
+
+    @Query("SELECT u FROM UserEntity u WHERE CONCAT(u.firstName, ' ', u.lastName) LIKE %:nameFilter% AND u.isDeleted = false")
+    List<UserEntity> findAllActiveByFullName(String nameFilter);
+
 }

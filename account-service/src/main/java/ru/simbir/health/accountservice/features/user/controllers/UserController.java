@@ -128,4 +128,23 @@ public class UserController {
     ) {
         return userService.isExists(id, roles, requireAll);
     }
+
+    @GetMapping("/Doctors")
+    @SecurityRequirement(name = "bearerAuth")
+    public List<UserEntityDto> getAllDoctors(
+            @RequestParam(required = false) String nameFilter,
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "20") int count
+    ) {
+        return userService.getAll(from, count, nameFilter, UserRoleEntityId.Role.Doctor)
+                .getContent().stream().map(userEntityMapper::toDto).toList();
+    }
+
+    @GetMapping("/Doctors/{id}")
+    @SecurityRequirement(name = "bearerAuth")
+    public UserEntityDto getDoctorById(
+            @PathVariable long id
+    ) {
+        return userEntityMapper.toDto(userService.getById(id, UserRoleEntityId.Role.Doctor));
+    }
 }

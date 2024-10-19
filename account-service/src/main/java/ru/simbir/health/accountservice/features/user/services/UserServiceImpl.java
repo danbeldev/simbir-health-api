@@ -3,6 +3,7 @@ package ru.simbir.health.accountservice.features.user.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
+    public UserEntity getById(long id, UserRoleEntityId.Role role) {
+        var user = getById(id);
+        if (user.getRoles().stream().noneMatch(r -> r.getId().getRole().equals(role)))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + id);
+        return user;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public UserEntity getByUsername(String username) {
         return userRepository.findActiveByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with username: " + username));
@@ -55,6 +65,29 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public Slice<UserEntity> getAll(int offset, int limit) {
         return userRepository.findSliceOfActiveUsers(PageRequest.of(offset, limit));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Slice<UserEntity> getAll(int offset, int limit, String nameFilter, UserRoleEntityId.Role role) {
+        List<UserEntity> users;
+
+        if (nameFilter != null && !nameFilter.isBlank())
+            users = userRepository.findAllActiveByFullName(nameFilter);
+        else
+            users = userRepository.findAllActiveUsers();
+
+        List<UserEntity> usersByRole = users.stream()
+                .filter(user -> user.getRoles().stream().anyMatch(r -> r.getId().getRole().equals(role)))
+                .toList();
+
+        int start = Math.toIntExact((long) offset * limit);
+        int end = Math.min((start + limit), usersByRole.size());
+        List<UserEntity> pagedUsers = usersByRole.subList(start, end);
+
+        boolean hasNext = end < usersByRole.size();
+
+        return new SliceImpl<>(pagedUsers, PageRequest.of(offset, limit), hasNext);
     }
 
     @Override

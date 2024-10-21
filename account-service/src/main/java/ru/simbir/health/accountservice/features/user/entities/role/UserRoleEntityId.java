@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 import ru.simbir.health.accountservice.features.user.entities.UserEntity;
 
@@ -18,14 +19,11 @@ public class UserRoleEntityId implements Serializable {
     @Serial
     private static final long serialVersionUID = 1482489882385162241L;
 
-    @Column(name = "user_id", nullable = false, insertable = false, updatable = false)
-    private Long userId;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "role_id", nullable = false)
     private Role role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
@@ -41,17 +39,29 @@ public class UserRoleEntityId implements Serializable {
         }
     }
 
+
+
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        UserRoleEntityId entity = (UserRoleEntityId) o;
-        return Objects.equals(this.role, entity.role) &&
-                Objects.equals(this.userId, entity.userId);
+    public String toString() {
+        return getClass().getSimpleName() + "(" +
+                "role = " + role + ", " +
+                "user = " + user + ")";
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(role, userId);
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        UserRoleEntityId that = (UserRoleEntityId) o;
+        return getRole() != null && Objects.equals(getRole(), that.getRole())
+                && getUser() != null && Objects.equals(getUser(), that.getUser());
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(role, user);
     }
 }

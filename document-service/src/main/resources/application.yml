@@ -17,3 +17,11 @@ spring:
     init:
       schema-locations: classpath*:db/schema.sql
       data-locations: classpath*:db/data.sql
+feign:
+  clients:
+    account:
+      url: ${ACCOUNT_SERVICE_URL}
+    hospital:
+      url: ${HOSPITAL_SERVICE_URL}
+elasticsearch:
+  hostAndPort: ${ELASTICSEARCH_HOST_AND_PORT}

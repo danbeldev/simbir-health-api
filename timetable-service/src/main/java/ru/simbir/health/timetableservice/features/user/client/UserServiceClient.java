@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import ru.simbir.health.timetableservice.common.security.user.models.UserRole;
 import ru.simbir.health.timetableservice.features.user.client.models.UserModel;
 
-@FeignClient(name = "user-service", url = "http://localhost:8080/api")
+@FeignClient(name = "user-service", url = "${feign.clients.account.url}")
 public interface UserServiceClient {
 
     @GetMapping("/Authentication/Validate")

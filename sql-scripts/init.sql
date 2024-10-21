@@ -1,4 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -11,28 +12,42 @@ CREATE TABLE IF NOT EXISTS users
     CONSTRAINT PK__users__key PRIMARY KEY (id)
     );
 
+-- DO
+-- $$
+-- BEGIN
+--         IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role') THEN
+-- CREATE TYPE user_role AS ENUM ('User', 'Doctor', 'Manager', 'Admin');
+-- END IF;
+-- END
+-- $$;
+
+CREATE TABLE IF NOT EXISTS user_roles
+(
+    user_id BIGINT    NOT NULL,
+    role_id varchar(16) NOT NULL,
+    CONSTRAINT PK__user_roles__key PRIMARY KEY (user_id, role_id)
+    );
+
+INSERT INTO users (last_name, first_name, username, password, is_deleted)
+VALUES
+    ('user', 'user', 'user', crypt('user', gen_salt('bf')), FALSE),
+    ('doctor', 'doctor', 'doctor', crypt('doctor', gen_salt('bf')), FALSE),
+    ('manager', 'manager', 'manager', crypt('manager', gen_salt('bf')), FALSE),
+    ('admin', 'admin', 'admin', crypt('admin', gen_salt('bf')), FALSE);
+
+INSERT INTO user_roles (user_id, role_id)
+VALUES
+    ((SELECT id FROM users WHERE username = 'user'), 'User'),
+    ((SELECT id FROM users WHERE username = 'doctor'), 'Doctor'),
+    ((SELECT id FROM users WHERE username = 'manager'), 'Manager'),
+    ((SELECT id FROM users WHERE username = 'admin'), 'Admin');
+
+
 CREATE TABLE IF NOT EXISTS active_tokens
 (
     id UUID NOT NULL DEFAULT gen_random_uuid(),
     CONSTRAINT PK__active_tokens_key PRIMARY KEY (id)
     );
-
-DO
-$$
-BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role') THEN
-CREATE TYPE user_role AS ENUM ('User', 'Doctor', 'Manager', 'Admin');
-END IF;
-END
-$$;
-
-CREATE TABLE IF NOT EXISTS user_roles
-(
-    user_id BIGINT    NOT NULL,
-    role_id user_role NOT NULL,
-    CONSTRAINT PK__user_roles__key PRIMARY KEY (user_id, role_id)
-    );
-
 
 CREATE TABLE IF NOT EXISTS hospitals
 (

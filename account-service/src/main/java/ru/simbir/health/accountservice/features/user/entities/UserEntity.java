@@ -7,13 +7,13 @@ import org.hibernate.proxy.HibernateProxy;
 import ru.simbir.health.accountservice.features.user.dto.params.AdminCreateOrUpdateUserParams;
 import ru.simbir.health.accountservice.features.user.entities.role.UserRoleEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Getter
 @Setter
-@Entity
-@Table(name = "users")
+@Entity(name = "users")
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,7 +36,7 @@ public class UserEntity {
     private Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "id.user", fetch = FetchType.LAZY)
-    private List<UserRoleEntity> roles;
+    private List<UserRoleEntity> roles = new ArrayList<>();
 
     @Override
     public final boolean equals(Object o) {

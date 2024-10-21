@@ -11,8 +11,7 @@ import java.util.Objects;
 
 @Getter
 @Setter
-@Entity
-@Table(name = "user_roles")
+@Entity(name = "user_roles")
 public class UserRoleEntity {
     @EmbeddedId
     private UserRoleEntityId id;
@@ -31,5 +30,11 @@ public class UserRoleEntity {
     @Override
     public final int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(" +
+                "EmbeddedId = " + id + ")";
     }
 }

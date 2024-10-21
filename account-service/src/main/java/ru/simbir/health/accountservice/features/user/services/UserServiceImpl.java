@@ -177,10 +177,11 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-    private void updateRoles(UserEntity user, List<String> roles) {
+    @Transactional
+    public void updateRoles(UserEntity user, List<UserRoleEntityId.Role> roles) {
         if (roles != null && !roles.isEmpty()) {
-            Set<String> existingRoleNames = user.getRoles().stream()
-                    .map(role -> role.getId().getRole().name())
+            Set<UserRoleEntityId.Role> existingRoleNames = user.getRoles().stream()
+                    .map(role -> role.getId().getRole())
                     .collect(Collectors.toSet());
 
             List<UserRoleEntity> rolesToAdd = roles.stream()
@@ -188,14 +189,14 @@ public class UserServiceImpl implements UserService {
                     .map(roleName -> {
                         var userRoleEntity = new UserRoleEntity();
                         var userRoleId = new UserRoleEntityId();
-                        userRoleId.setUserId(user.getId());
-                        userRoleId.setRole(UserRoleEntityId.Role.valueOf(roleName));
+                        userRoleId.setUser(user);
+                        userRoleId.setRole(roleName);
                         userRoleEntity.setId(userRoleId);
                         return userRoleEntity;
                     }).collect(Collectors.toList());
 
             List<UserRoleEntity> rolesToRemove = user.getRoles().stream()
-                    .filter(role -> !roles.contains(role.getId().getRole().name()))
+                    .filter(role -> !roles.contains(role.getId().getRole()))
                     .collect(Collectors.toList());
 
             if (!rolesToAdd.isEmpty()) {

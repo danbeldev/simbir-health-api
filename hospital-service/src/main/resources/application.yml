@@ -17,3 +17,7 @@ spring:
     init:
       schema-locations: classpath*:db/schema.sql
       data-locations: classpath*:db/data.sql
+feign:
+  clients:
+    account:
+      url: ${ACCOUNT_SERVICE_URL}

@@ -8,6 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.simbir.health.documentservice.features.history.dto.params.CreateOrUpdateParams;
 import ru.simbir.health.documentservice.features.history.entities.HistoryEntity;
 import ru.simbir.health.documentservice.features.history.repositories.HistoryRepository;
+import ru.simbir.health.documentservice.features.history.services.elasticsearch.HistoryElasticsearchService;
 
 import java.util.List;
 
@@ -16,6 +17,8 @@ import java.util.List;
 public class HistoryServiceImpl implements HistoryService {
 
     public final HistoryRepository historyRepository;
+
+    private final HistoryElasticsearchService historyElasticsearchService;
 
     @Override
     @Transactional(readOnly = true)
@@ -35,7 +38,12 @@ public class HistoryServiceImpl implements HistoryService {
     public HistoryEntity create(CreateOrUpdateParams params) {
         var history = new HistoryEntity();
         historySetPrams(history, params);
-        return historyRepository.save(history);
+
+        var savedHistory = historyRepository.save(history);
+
+        historyElasticsearchService.save(savedHistory);
+
+        return savedHistory;
     }
 
     @Override
@@ -43,6 +51,9 @@ public class HistoryServiceImpl implements HistoryService {
     public void update(Long id, CreateOrUpdateParams params) {
         var history = getById(id);
         historySetPrams(history, params);
+
+        historyElasticsearchService.save(history);
+
         historyRepository.save(history);
     }
 

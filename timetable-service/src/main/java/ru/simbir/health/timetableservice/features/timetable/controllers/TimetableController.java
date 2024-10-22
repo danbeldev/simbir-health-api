@@ -1,5 +1,6 @@
 package ru.simbir.health.timetableservice.features.timetable.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.simbir.health.timetableservice.common.security.authenticate.Authenticate;
@@ -7,6 +8,7 @@ import ru.simbir.health.timetableservice.common.security.authorization.Authoriza
 import ru.simbir.health.timetableservice.common.security.user.UserSession;
 import ru.simbir.health.timetableservice.common.security.user.models.UserRole;
 import ru.simbir.health.timetableservice.common.security.user.models.UserSessionDetails;
+import ru.simbir.health.timetableservice.common.validate.hospital.ValidHospitalAndRoom;
 import ru.simbir.health.timetableservice.features.timetable.dto.params.CreateAppointmentParams;
 import ru.simbir.health.timetableservice.features.timetable.dto.TimetableEntityDto;
 import ru.simbir.health.timetableservice.features.timetable.dto.params.CreateOrUpdateTimetableParams;
@@ -64,8 +66,9 @@ public class TimetableController {
 
     @PostMapping
     @Authenticate(roles = {UserRole.Admin, UserRole.Manager})
+    @ValidHospitalAndRoom(hospitalIdFieldName = "#params.hospitalId", roomFieldName = "#params.room")
     public TimetableEntityDto create(
-            @RequestBody CreateOrUpdateTimetableParams params
+            @Valid @RequestBody CreateOrUpdateTimetableParams params
     ) {
         return timetableEntityMapper.toDto(timetableService.create(params));
     }
@@ -114,8 +117,8 @@ public class TimetableController {
     }
 
     @Authenticate
-    @Authorization(value = "timetableAppointmentAuthorizationServiceImpl.accessDeleteAppointmentById(#id, #userSession)")
     @DeleteMapping("/Appointments/{id}")
+    @Authorization(value = "timetableAppointmentAuthorizationService.accessDeleteAppointmentById(#id, #userSession)")
     public void deleteAppointmentById(@PathVariable Long id, @UserSession UserSessionDetails userSession) {
         timetableAppointmentService.softDelete(id);
     }

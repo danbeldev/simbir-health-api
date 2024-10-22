@@ -4,9 +4,6 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class SpelContextUtils {
 
     public static StandardEvaluationContext createResponseContext(Object result) {
@@ -28,13 +25,11 @@ public class SpelContextUtils {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Object[] args = joinPoint.getArgs();
 
-        Map<String, Object> request = new HashMap<>();
-        String[] paramNames = methodSignature.getParameterNames();
-        for (int i = 0; i < paramNames.length; i++) {
-            String paramName = paramNames[i];
-            request.put(paramName, args[i]);
+        var parameterNames = methodSignature.getParameterNames();
+        for (int i = 0; i < parameterNames.length; i++) {
+            context.setVariable(parameterNames[i], args[i]);
         }
-        context.setVariable("request", request);
+
         return context;
     }
 

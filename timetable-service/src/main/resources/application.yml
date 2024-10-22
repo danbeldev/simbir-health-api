@@ -22,3 +22,5 @@ feign:
   clients:
     account:
       url: ${ACCOUNT_SERVICE_URL}
+    hospital:
+      url: ${HOSPITAL_SERVICE_URL}

@@ -1,4 +1,4 @@
-package ru.simbir.health.documentservice.common.validate.hospital;
+package ru.simbir.health.timetableservice.common.validate.hospital;
 
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -9,9 +9,9 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
-import ru.simbir.health.documentservice.features.hospital.client.HospitalServiceClient;
+import ru.simbir.health.timetableservice.features.hospital.client.HospitalServiceClient;
 
-import static ru.simbir.health.documentservice.common.spel.SpelContextUtils.createRequestContext;
+import static ru.simbir.health.timetableservice.common.spel.SpelContextUtils.createRequestContext;
 
 @Aspect
 @Component

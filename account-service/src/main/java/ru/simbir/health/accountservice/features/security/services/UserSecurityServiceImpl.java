@@ -1,5 +1,6 @@
 package ru.simbir.health.accountservice.features.security.services;
 
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,8 +66,12 @@ public class UserSecurityServiceImpl implements UserSecurityService {
     @Override
     @Transactional(readOnly = true)
     public JwtValidateResponseDto validateToken(String accessToken) {
-        var authorization = (JwtUserDetails) jwtTokenProvider.getUserDetailsByAccessToken(accessToken);
-        return new JwtValidateResponseDto(authorization.getUserId(), authorization.getAuthorities());
+        try {
+            var authorization = (JwtUserDetails) jwtTokenProvider.getUserDetailsByAccessToken(accessToken);
+            return new JwtValidateResponseDto(authorization.getUserId(), authorization.getAuthorities());
+        }catch (JwtException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @Override

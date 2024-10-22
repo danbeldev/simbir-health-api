@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import ru.simbir.health.timetableservice.common.security.user.models.UserRole;
 import ru.simbir.health.timetableservice.features.user.client.models.UserModel;
 
+import java.util.Collection;
+
 @FeignClient(name = "user-service", url = "${feign.clients.account.url}")
 public interface UserServiceClient {
 
@@ -14,5 +16,5 @@ public interface UserServiceClient {
     UserModel validationAccessToken(@RequestParam String accessToken);
 
     @GetMapping("/Accounts/{id}/Is-Exists")
-    boolean exists(@PathVariable Long id, @RequestParam UserRole[] roles, @RequestParam boolean requireAll);
+    boolean exists(@PathVariable Long id, @RequestParam Collection<UserRole> roles, @RequestParam boolean requireAll);
 }

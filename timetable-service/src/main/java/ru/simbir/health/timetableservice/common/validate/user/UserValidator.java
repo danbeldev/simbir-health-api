@@ -1,11 +1,11 @@
-package ru.simbir.health.documentservice.common.validate.user;
+package ru.simbir.health.timetableservice.common.validate.user;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.simbir.health.documentservice.common.security.user.models.UserRole;
-import ru.simbir.health.documentservice.features.user.client.UserServiceClient;
+import ru.simbir.health.timetableservice.common.security.user.models.UserRole;
+import ru.simbir.health.timetableservice.features.user.client.UserServiceClient;
 
 import java.util.Arrays;
 import java.util.Collection;

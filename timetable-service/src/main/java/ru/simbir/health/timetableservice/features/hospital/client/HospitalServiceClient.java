@@ -1,4 +1,4 @@
-package ru.simbir.health.documentservice.features.hospital.client;
+package ru.simbir.health.timetableservice.features.hospital.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

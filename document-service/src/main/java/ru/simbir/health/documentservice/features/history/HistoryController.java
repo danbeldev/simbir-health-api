@@ -4,9 +4,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.simbir.health.documentservice.common.security.authenticate.Authenticate;
+import ru.simbir.health.documentservice.common.security.authorization.Authorization;
 import ru.simbir.health.documentservice.common.security.user.UserSession;
 import ru.simbir.health.documentservice.common.security.user.models.UserRole;
 import ru.simbir.health.documentservice.common.security.user.models.UserSessionDetails;
+import ru.simbir.health.documentservice.common.validate.hospital.ValidHospitalAndRoom;
 import ru.simbir.health.documentservice.features.history.documents.elasticsearch.HistoryDocument;
 import ru.simbir.health.documentservice.features.history.dto.HistoryEntityDto;
 import ru.simbir.health.documentservice.features.history.dto.params.CreateOrUpdateParams;
@@ -41,16 +43,14 @@ public class HistoryController {
 
     @Authenticate
     @GetMapping("/{id}")
-    // TODO: FieldComparison - заменить
-//    @FieldComparison(firstField = "#request.userSession.id", secondField = "#response.pacientId", excludedRoles = UserRole.Doctor)
+    @Authorization(value = "historyAuthorization.accessReadHistory(#result,#userSession)", executeBefore = false)
     public HistoryEntityDto getById(@PathVariable Long id, @UserSession UserSessionDetails userSession) {
         return historyEntityMapper.toDto(historyService.getById(id));
     }
 
     @PostMapping
     @Authenticate(roles = {UserRole.Admin, UserRole.Manager, UserRole.Doctor})
-    // TODO: ValidHospitalAndRoom - заменить
-//    @ValidHospitalAndRoom(hospitalIdFieldName = "#request.params.hospitalId", roomFieldName = "#request.params.room")
+    @ValidHospitalAndRoom(hospitalIdFieldName = "#params.hospitalId", roomFieldName = "#params.room")
     public HistoryEntityDto create(@Valid @RequestBody CreateOrUpdateParams params) {
         return historyEntityMapper.toDto(historyService.create(params));
     }

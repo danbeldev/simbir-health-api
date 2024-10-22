@@ -1,5 +1,6 @@
 package ru.simbir.health.documentservice.common.security.authenticate;
 
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -9,10 +10,10 @@ import org.springframework.web.bind.annotation.ValueConstants;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
-import ru.simbir.health.documentservice.common.security.user.models.UserRole;
-import ru.simbir.health.documentservice.features.user.client.UserServiceClient;
 import ru.simbir.health.documentservice.common.security.context.SecurityContextHolder;
+import ru.simbir.health.documentservice.common.security.user.models.UserRole;
 import ru.simbir.health.documentservice.common.security.user.models.UserSessionDetails;
+import ru.simbir.health.documentservice.features.user.client.UserServiceClient;
 
 import java.lang.reflect.Parameter;
 import java.util.List;
@@ -30,6 +31,10 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
 
             if (authenticate != null) {
                 var userDetails = authenticate(request);
+                if (userDetails == null) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    return false;
+                }
 
                 if (!validation(userDetails, authenticate, method, request)) {
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -46,7 +51,12 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
 
     private UserSessionDetails authenticate(HttpServletRequest request) {
         var authorizationHeader = request.getHeader("Authorization");
-        return userServiceClient.validationAccessToken(authorizationHeader.substring(7));
+        if (authorizationHeader == null) return null;
+        try {
+            return userServiceClient.validationAccessToken(authorizationHeader.substring(7));
+        } catch (FeignException ignore) {
+            return null;
+        }
     }
 
     private Authenticate getAuthenticateAnnotation(HandlerMethod method) {
@@ -61,8 +71,27 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
 
     private boolean validation(UserSessionDetails user, Authenticate authenticate, HandlerMethod method, HttpServletRequest request) {
         return switch (authenticate.operation()) {
-            case OR -> validationRoles(user, authenticate) || validationId(user, authenticate, method, request);
-            case AND -> validationRoles(user, authenticate) && validationId(user, authenticate, method, request);
+            case OR -> {
+                if (authenticate.roles().length > 0) {
+                    yield validationRoles(user, authenticate);
+                }
+                if (!authenticate.parameterUserId().isEmpty()) {
+                    yield validationId(user, authenticate, method, request);
+                }
+                yield true;
+            }
+            case AND -> {
+
+                if (authenticate.roles().length > 0 && !validationRoles(user, authenticate)) {
+                    yield false;
+                }
+
+                if (!authenticate.parameterUserId().isEmpty() && !validationId(user, authenticate, method, request)) {
+                    yield false;
+                }
+
+                yield true;
+            }
         };
     }
 
@@ -77,8 +106,6 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
     }
 
     private boolean validationId(UserSessionDetails user, Authenticate authenticate, HandlerMethod method, HttpServletRequest request) {
-        if (authenticate.parameterUserId().isEmpty()) return true;
-
         Object argValue = getArgumentByName(method, authenticate.parameterUserId(), request);
 
         if (argValue != null) {

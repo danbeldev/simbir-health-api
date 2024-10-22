@@ -1,5 +1,6 @@
 package ru.simbir.health.timetableservice.common.security.authenticate;
 
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,10 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
 
             if (authenticate != null) {
                 var userDetails = authenticate(request);
+                if (userDetails == null) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    return false;
+                }
 
                 if (!validation(userDetails, authenticate, method, request)) {
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -46,7 +51,12 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
 
     private UserSessionDetails authenticate(HttpServletRequest request) {
         var authorizationHeader = request.getHeader("Authorization");
-        return userServiceClient.validationAccessToken(authorizationHeader.substring(7));
+        if (authorizationHeader == null) return null;
+        try {
+            return userServiceClient.validationAccessToken(authorizationHeader.substring(7));
+        } catch (FeignException ignore) {
+            return null;
+        }
     }
 
     private Authenticate getAuthenticateAnnotation(HandlerMethod method) {

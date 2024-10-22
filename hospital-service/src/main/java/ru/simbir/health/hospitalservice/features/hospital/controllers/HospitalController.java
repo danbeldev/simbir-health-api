@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.simbir.health.hospitalservice.common.security.authenticate.Authenticate;
-import ru.simbir.health.hospitalservice.common.security.authenticate.models.LogicalOperation;
 import ru.simbir.health.hospitalservice.common.security.user.models.UserRole;
 import ru.simbir.health.hospitalservice.features.hospital.dto.HospitalEntityDto;
 import ru.simbir.health.hospitalservice.features.hospital.dto.params.CreateOrUpdateHospitalParams;
@@ -51,16 +50,16 @@ public class HospitalController {
     }
 
     @Hidden
-    @GetMapping("/{hospitalId}/Room/{room}/Validation")
+    @GetMapping("/{hospitalId}/Room/Validation")
     boolean validationHospitalAndRoom(
             @PathVariable long hospitalId,
-            @PathVariable String room
+            @RequestParam String room
     ) {
         return hospitalService.validationHospitalAndRoom(hospitalId, room);
     }
 
     @PostMapping
-    @Authenticate(roles = UserRole.Admin, operation = LogicalOperation.AND)
+    @Authenticate(roles = UserRole.Admin)
     public HospitalEntityDto create(
             @RequestBody CreateOrUpdateHospitalParams params
     ) {
@@ -68,7 +67,7 @@ public class HospitalController {
     }
 
     @PutMapping("/{id}")
-    @Authenticate(roles = UserRole.Admin, operation = LogicalOperation.AND)
+    @Authenticate(roles = UserRole.Admin)
     public void update(
             @PathVariable long id,
             @RequestBody CreateOrUpdateHospitalParams params
@@ -77,7 +76,7 @@ public class HospitalController {
     }
 
     @DeleteMapping("/{id}")
-    @Authenticate(roles = UserRole.Admin, operation = LogicalOperation.AND)
+    @Authenticate(roles = UserRole.Admin)
     public void delete(
             @PathVariable long id
     ) {

@@ -7,10 +7,10 @@ import java.time.Instant;
 
 public record CreateOrUpdateParams(
         Instant date,
-        @ValidUser(roles = UserRole.User, message = "Pacient not found")
+        @ValidUser(roles = UserRole.User, message = "Invalid pacientId")
         Long pacientId,
         Long hospitalId,
-        @ValidUser(roles = UserRole.Doctor, message = "Doctor not found")
+        @ValidUser(roles = UserRole.Doctor, message = "Invalid doctorId")
         Long doctorId,
         String room,
         String data

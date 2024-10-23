@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import ru.simbir.health.accountservice.common.message.LocalizedMessageService;
 import ru.simbir.health.accountservice.features.user.dto.params.AdminCreateOrUpdateUserParams;
 import ru.simbir.health.accountservice.features.user.dto.params.CreateOrUpdateUserParams;
 import ru.simbir.health.accountservice.features.user.entities.UserEntity;
@@ -29,21 +30,28 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     public final UserRoleRepository userRoleRepository;
 
+    private final LocalizedMessageService localizedMessageService;
+
     private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(readOnly = true)
     public UserEntity getById(long id) {
         return userRepository.findActiveById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + id));
+                .orElseThrow(() -> {
+                    var message = localizedMessageService.getMessage("user.notfound.id", id);
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, message);
+                });
     }
 
     @Override
     @Transactional(readOnly = true)
     public UserEntity getById(long id, UserRoleEntityId.Role role) {
         var user = getById(id);
-        if (user.getRoles().stream().noneMatch(r -> r.getId().getRole().equals(role)))
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + id);
+        if (user.getRoles().stream().noneMatch(r -> r.getId().getRole().equals(role))) {
+            var message = localizedMessageService.getMessage("user.notfound.id", id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, message);
+        }
         return user;
     }
 
@@ -51,14 +59,20 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserEntity getByUsername(String username) {
         return userRepository.findActiveByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with username: " + username));
+                .orElseThrow(() -> {
+                    var message = localizedMessageService.getMessage("user.notfound.username", username);
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, message);
+                });
     }
 
     @Override
     @Transactional(readOnly = true)
     public UserEntity getByUsernameWithRoles(String username) {
         return userRepository.findActiveByUsernameWithRoles(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with username: " + username));
+                .orElseThrow(() -> {
+                    var message = localizedMessageService.getMessage("user.notfound.username", username);
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, message);
+                });
     }
 
     @Override
@@ -145,8 +159,10 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserEntity create(UserEntity user) {
-        if(userRepository.findActiveByUsername(user.getUsername()).isPresent())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is busy");
+        if (userRepository.findActiveByUsername(user.getUsername()).isPresent()) {
+            var message = localizedMessageService.getMessage("user.username.busy");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
+        }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
@@ -169,14 +185,17 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void update(UserEntity user, boolean passwordEncoding) {
-        if(userRepository.findActiveByUsername(user.getUsername(), user.getId()).isPresent())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is busy");
+        if (userRepository.findActiveByUsername(user.getUsername(), user.getId()).isPresent()) {
+            var message = localizedMessageService.getMessage("user.username.busy");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
+        }
 
         if (passwordEncoding) user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         userRepository.save(user);
     }
 
+    @Override
     @Transactional
     public void updateRoles(UserEntity user, List<UserRoleEntityId.Role> roles) {
         if (roles != null && !roles.isEmpty()) {

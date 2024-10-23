@@ -2,9 +2,14 @@ package ru.simbir.health.accountservice.features.user.controllers;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.simbir.health.accountservice.common.validate.pagination.PaginationLimit;
+import ru.simbir.health.accountservice.common.validate.pagination.PaginationOffset;
+import ru.simbir.health.accountservice.common.validate.pagination.ValidPagination;
 import ru.simbir.health.accountservice.features.security.jwt.JwtUserDetails;
 import ru.simbir.health.accountservice.features.user.dto.params.AdminCreateOrUpdateUserParams;
 import ru.simbir.health.accountservice.features.user.dto.params.CreateOrUpdateUserParams;
@@ -16,6 +21,7 @@ import ru.simbir.health.accountservice.features.user.services.UserService;
 import java.util.Collection;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/Accounts")
 @RequiredArgsConstructor
@@ -36,17 +42,23 @@ public class UserController {
     @PutMapping("/Update")
     @SecurityRequirement(name = "bearerAuth")
     public void update(
-            @RequestBody CreateOrUpdateUserParams params,
+            @Valid @RequestBody CreateOrUpdateUserParams params,
             @AuthenticationPrincipal JwtUserDetails jwtUserDetails
     ) {
         userService.update(jwtUserDetails.getUserId(), params);
     }
 
     @GetMapping
+    @ValidPagination
     @SecurityRequirement(name = "bearerAuth")
     public List<UserEntityDto> getAll(
-            @RequestParam(defaultValue = "0") int from,
-            @RequestParam(defaultValue = "20") int count
+            @PaginationOffset
+            @RequestParam(defaultValue = "0")
+            int from,
+
+            @PaginationLimit
+            @RequestParam(defaultValue = "20")
+            int count
     ) {
         return userService.getAll(from, count).getContent().stream().map(userEntityMapper::toDto).toList();
     }
@@ -54,7 +66,7 @@ public class UserController {
     @PostMapping
     @SecurityRequirement(name = "bearerAuth")
     public UserEntityDto create(
-            @RequestBody AdminCreateOrUpdateUserParams params
+            @Valid @RequestBody AdminCreateOrUpdateUserParams params
     ) {
         return userEntityMapper.toDto(userService.create(params));
     }
@@ -63,7 +75,7 @@ public class UserController {
     @SecurityRequirement(name = "bearerAuth")
     public void update(
             @PathVariable long id,
-            @RequestBody AdminCreateOrUpdateUserParams params
+            @Valid @RequestBody AdminCreateOrUpdateUserParams params
     ) {
         userService.update(id, params);
     }

@@ -9,8 +9,10 @@ import java.time.Instant;
  */
 public record HistoryEntityDto(
         @NotNull Long id,
-        @NotNull String roomName,
         @NotNull Long pacientId,
+        @NotNull Long hospitalId,
+        @NotNull Long doctorId,
+        @NotNull String room,
         @NotNull String data,
         @NotNull Instant date
 ) {}

@@ -4,10 +4,10 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE IF NOT EXISTS users
 (
     id         BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
-    last_name  VARCHAR(64)                         NOT NULL,
-    first_name VARCHAR(64)                         NOT NULL,
-    username   VARCHAR(64)                         NOT NULL,
-    password   VARCHAR(128)                        NOT NULL,
+    last_name  VARCHAR(128)                         NOT NULL,
+    first_name VARCHAR(128)                         NOT NULL,
+    username   VARCHAR(128)                         NOT NULL,
+    password   VARCHAR(256)                        NOT NULL,
     is_deleted BOOLEAN DEFAULT FALSE               NOT NULL,
     CONSTRAINT PK__users__key PRIMARY KEY (id)
     );

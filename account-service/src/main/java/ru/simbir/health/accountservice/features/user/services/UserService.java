@@ -7,6 +7,7 @@ import ru.simbir.health.accountservice.features.user.entities.UserEntity;
 import ru.simbir.health.accountservice.features.user.entities.role.UserRoleEntityId;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface UserService {
 
@@ -35,4 +36,6 @@ public interface UserService {
     void softDelete(long id);
 
     boolean isExists(long id, Collection<UserRoleEntityId.Role> roles, boolean requireAll);
+
+    void updateRoles(UserEntity user, List<UserRoleEntityId.Role> roles);
 }

@@ -23,3 +23,8 @@ security:
 server:
   port: 8081
   forward-headers-strategy: framework
+base:
+  locale: ${DEFAULT_LOCALE}
+  min-offset: ${MIN_OFFSET}
+  min-limit: ${MIN_LIMIT}
+  max-limit: ${MAX_LIMIT}

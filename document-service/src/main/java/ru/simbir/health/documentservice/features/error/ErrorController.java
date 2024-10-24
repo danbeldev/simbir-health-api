@@ -1,5 +1,6 @@
 package ru.simbir.health.documentservice.features.error;
 
+import jakarta.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +14,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import ru.simbir.health.documentservice.features.error.dto.ExceptionBody;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @RestControllerAdvice
@@ -27,6 +26,15 @@ public class ErrorController {
     public ResponseEntity<ExceptionBody> handleResponseStatusException(ResponseStatusException ex) {
         ExceptionBody responseBody = new ExceptionBody(ex.getReason());
         return ResponseEntity.status(ex.getStatusCode()).body(responseBody);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<?> handleValidationException(ValidationException ex) {
+        if (ex.getCause() instanceof ResponseStatusException responseStatusException) {
+            return handleResponseStatusException(responseStatusException);
+        }else {
+            return handleException(ex);
+        }
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

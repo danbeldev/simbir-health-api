@@ -1,5 +1,6 @@
 package ru.simbir.health.documentservice.common.validate.hospital;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -32,8 +33,16 @@ public class ValidHospitalAndRoomAspect {
         var hospitalId = parser.parseExpression(validHospitalAndRoom.hospitalIdFieldName()).getValue(context, Long.class);
         var room = parser.parseExpression(validHospitalAndRoom.roomFieldName()).getValue(context, String.class);
 
-        if (!hospitalServiceClient.validationHospitalAndRoom(hospitalId, room))
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, localizedMessageService.getMessage("error.hospital.or.room.notfound"));
+        try {
+            if (!hospitalServiceClient.validationHospitalAndRoom(hospitalId, room))
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, localizedMessageService.getMessage("error.hospital.or.room.notfound"));
+        }catch (FeignException ex) {
+            if (ex.status() == -1) {
+                throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE);
+            }else {
+                throw ex;
+            }
+        }
 
         return joinPoint.proceed();
     }

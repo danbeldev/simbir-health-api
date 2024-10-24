@@ -1,5 +1,6 @@
 package ru.simbir.health.timetableservice.features.error;
 
+import jakarta.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,15 @@ public class ErrorController {
         Optional<FieldError> first = ex.getBindingResult().getFieldErrors().stream().findFirst();
         String message = first.isPresent() ? first.get().getDefaultMessage() : "Validation failed";
         return new ExceptionBody(message);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<?> handleValidationException(ValidationException ex) {
+        if (ex.getCause() instanceof ResponseStatusException responseStatusException) {
+            return handleResponseStatusException(responseStatusException);
+        }else {
+            return handleException(ex);
+        }
     }
 
     @ExceptionHandler(Exception.class)

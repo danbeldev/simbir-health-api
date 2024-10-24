@@ -33,9 +33,8 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
             var authenticate = getAuthenticateAnnotation(method);
 
             if (authenticate != null) {
-                var userDetails = authenticate(request);
+                var userDetails = authenticate(request, response);
                 if (userDetails == null) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     return false;
                 }
 
@@ -52,13 +51,22 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
         return true;
     }
 
-    private UserSessionDetails authenticate(HttpServletRequest request) {
+    private UserSessionDetails authenticate(HttpServletRequest request, HttpServletResponse response) {
         var authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader == null) return null;
         try {
             return userServiceClient.validationAccessToken(authorizationHeader.substring(7));
-        } catch (FeignException ignore) {
+        } catch (FeignException ex) {
+            handleFailedStatus(ex.status(), response);
             return null;
+        }
+    }
+
+    private void handleFailedStatus(int status, HttpServletResponse response) {
+        if (status == -1) {
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        }else {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
 

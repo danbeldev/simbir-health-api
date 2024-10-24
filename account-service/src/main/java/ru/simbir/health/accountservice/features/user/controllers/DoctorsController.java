@@ -1,6 +1,8 @@
 package ru.simbir.health.accountservice.features.user.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.simbir.health.accountservice.common.validate.pagination.PaginationLimit;
@@ -16,6 +18,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/Doctors")
+@Tag(name = "Доктора", description = "Эндпоинты для получения информации о врачах.")
 public class DoctorsController {
 
     private final UserService userService;
@@ -25,6 +28,7 @@ public class DoctorsController {
     @GetMapping
     @ValidPagination
     @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Получить всех врачей", description = "Возвращает список всех врачей с возможностью фильтрации и пагинации.")
     public List<UserEntityDto> getAllDoctors(
 
             @RequestParam(required = false)
@@ -44,6 +48,7 @@ public class DoctorsController {
 
     @GetMapping("/{id}")
     @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Получить врача по ID", description = "Возвращает информацию о враче по указанному идентификатору.")
     public UserEntityDto getDoctorById(
             @PathVariable long id
     ) {

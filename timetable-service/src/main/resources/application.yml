@@ -1,6 +1,7 @@
 server:
   port: 8083
   forward-headers-strategy: framework
+
 spring:
   config:
     import: optional:file:.env[.properties]
@@ -11,12 +12,14 @@ spring:
     password: ${POSTGRES_PASSWORD}
   application:
     name: timetable-service
+
 feign:
   clients:
     account:
       url: ${ACCOUNT_SERVICE_URL}
     hospital:
       url: ${HOSPITAL_SERVICE_URL}
+
 base:
   locale: ${DEFAULT_LOCALE}
   min-offset: ${MIN_OFFSET}

@@ -1,5 +1,7 @@
 package ru.simbir.health.timetableservice.features.timetable.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -25,6 +27,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/Timetable")
+@Tag(name = "Расписание", description = "Эндпоинты для управления расписанием.")
 public class TimetableController {
 
     private final TimetableService timetableService;
@@ -34,10 +37,12 @@ public class TimetableController {
 
     @Authenticate
     @GetMapping("/Hospital/{id}")
+    @Operation(summary = "Получить расписание больницы",
+            description = "Возвращает расписание больницы по заданному ID.")
     public List<TimetableEntityDto> getAllByHospitalId(
             @PathVariable Long id,
-            @RequestBody Instant from,
-            @RequestBody Instant to
+            @RequestParam Instant from,
+            @RequestParam Instant to
     ) {
         var params = GetAllTimetablesParams.builder().hospitalId(id).from(from).to(to).build();
         return timetableService.getAll(params).stream().map(timetableEntityMapper::toDto).toList();
@@ -45,10 +50,12 @@ public class TimetableController {
 
     @Authenticate
     @GetMapping("/Doctor/{id}")
+    @Operation(summary = "Получить расписание врача",
+            description = "Возвращает расписание врача по заданному ID.")
     public List<TimetableEntityDto> getAllByDoctorId(
             @PathVariable Long id,
-            @RequestBody Instant from,
-            @RequestBody Instant to
+            @RequestParam Instant from,
+            @RequestParam Instant to
     ) {
         var params = GetAllTimetablesParams.builder().doctorId(id).from(from).to(to).build();
         return timetableService.getAll(params).stream().map(timetableEntityMapper::toDto).toList();
@@ -56,11 +63,13 @@ public class TimetableController {
 
     @Authenticate
     @GetMapping("/Hospital/{id}/Room/{room}")
+    @Operation(summary = "Получить расписание кабинета больницы",
+            description = "Возвращает расписание кабинета больницы по заданному ID и комнате.")
     public List<TimetableEntityDto> getAllByHospitalIdAndRoom(
             @PathVariable Long id,
             @PathVariable String room,
-            @RequestBody Instant from,
-            @RequestBody Instant to
+            @RequestParam Instant from,
+            @RequestParam Instant to
     ) {
         var params = GetAllTimetablesParams.builder().hospitalId(id).room(room).from(from).to(to).build();
         return timetableService.getAll(params).stream().map(timetableEntityMapper::toDto).toList();
@@ -69,6 +78,8 @@ public class TimetableController {
     @PostMapping
     @Authenticate(roles = {UserRole.Admin, UserRole.Manager})
     @ValidHospitalAndRoom(hospitalIdFieldName = "#params.hospitalId", roomFieldName = "#params.room")
+    @Operation(summary = "Создать запись в расписании",
+            description = "Создаёт новую запись в расписании.")
     public TimetableEntityDto create(
             @Valid @RequestBody CreateOrUpdateTimetableParams params
     ) {
@@ -77,6 +88,8 @@ public class TimetableController {
 
     @PutMapping("{id}")
     @Authenticate(roles = {UserRole.Admin, UserRole.Manager})
+    @Operation(summary = "Обновить запись в расписании",
+            description = "Обновляет запись в расписании по заданному ID.")
     public void update(
             @PathVariable Long id,
             @Valid @RequestBody CreateOrUpdateTimetableParams params
@@ -86,30 +99,40 @@ public class TimetableController {
 
     @DeleteMapping("/{id}")
     @Authenticate(roles = {UserRole.Admin, UserRole.Manager})
+    @Operation(summary = "Удалить запись расписания",
+            description = "Удаляет запись расписания по заданному ID.")
     public void deleteById(@PathVariable Long id) {
         timetableService.softDeleteById(id);
     }
 
     @DeleteMapping("/Doctor/{id}")
     @Authenticate(roles = {UserRole.Admin, UserRole.Manager})
+    @Operation(summary = "Удалить записи расписания врача",
+            description = "Удаляет все записи расписания для врача по заданному ID.")
     public void deleteByDoctorId(@PathVariable Long id) {
         timetableService.softDeleteByDoctorId(id);
     }
 
     @DeleteMapping("/Hospital/{id}")
     @Authenticate(roles = {UserRole.Admin, UserRole.Manager})
+    @Operation(summary = "Удалить записи расписания больницы",
+            description = "Удаляет все записи расписания для больницы по заданному ID.")
     public void deleteByHospitalId(@PathVariable Long id) {
         timetableService.softDeleteByHospitalId(id);
     }
 
     @Authenticate
     @GetMapping("/{id}/Appointments")
+    @Operation(summary = "Получить свободные талоны на приём",
+            description = "Возвращает доступные талончики на приём для указанного расписания.")
     public List<Instant> getAppointments(@PathVariable Long id) {
         return timetableAppointmentService.getAvailableAppointments(id);
     }
 
     @Authenticate
     @PostMapping("/{id}/Appointments")
+    @Operation(summary = "Записаться на приём",
+            description = "Создаёт запись на приём по указанному времени.")
     public long createAppointment(
             @PathVariable Long id,
             @Valid @RequestBody CreateAppointmentParams dto,
@@ -121,6 +144,8 @@ public class TimetableController {
     @Authenticate
     @DeleteMapping("/Appointments/{id}")
     @Authorization(value = "timetableAppointmentAuthorizationService.accessDeleteAppointmentById(#id, #userSession)")
+    @Operation(summary = "Отменить запись на приём",
+            description = "Удаляет запись на приём по заданному ID.")
     public void deleteAppointmentById(@PathVariable Long id, @UserSession UserSessionDetails userSession) {
         timetableAppointmentService.softDelete(id);
     }

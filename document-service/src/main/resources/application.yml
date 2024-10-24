@@ -1,6 +1,7 @@
 server:
   port: 8084
   forward-headers-strategy: framework
+
 spring:
   config:
     import: optional:file:.env[.properties]
@@ -11,14 +12,17 @@ spring:
     password: ${POSTGRES_PASSWORD}
   application:
     name: document-service
+
 feign:
   clients:
     account:
       url: ${ACCOUNT_SERVICE_URL}
     hospital:
       url: ${HOSPITAL_SERVICE_URL}
+
 elasticsearch:
   hostAndPort: ${ELASTICSEARCH_HOST_AND_PORT}
+
 base:
   locale: ${DEFAULT_LOCALE}
   min-offset: ${MIN_OFFSET}

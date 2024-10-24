@@ -1,7 +1,9 @@
 package ru.simbir.health.accountservice.features.user.controllers;
 
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/Accounts")
 @RequiredArgsConstructor
+@Tag(name = "Пользователи", description = "Эндпоинты для управления пользователями.")
 public class UserController {
 
     private final UserService userService;
@@ -33,6 +36,7 @@ public class UserController {
 
     @GetMapping("/Me")
     @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Получить информацию о текущем пользователе", description = "Возвращает информацию о пользователе, который выполнил вход.")
     public UserEntityDto getInfo(
             @AuthenticationPrincipal JwtUserDetails jwtUserDetails
     ) {
@@ -41,6 +45,7 @@ public class UserController {
 
     @PutMapping("/Update")
     @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Обновить информацию о текущем пользователе", description = "Обновляет данные текущего пользователя.")
     public void update(
             @Valid @RequestBody CreateOrUpdateUserParams params,
             @AuthenticationPrincipal JwtUserDetails jwtUserDetails
@@ -51,6 +56,7 @@ public class UserController {
     @GetMapping
     @ValidPagination
     @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Получить всех пользователей", description = "Возвращает список всех пользователей с возможностью пагинации.")
     public List<UserEntityDto> getAll(
             @PaginationOffset
             @RequestParam(defaultValue = "0")
@@ -65,6 +71,7 @@ public class UserController {
 
     @PostMapping
     @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Создать нового пользователя", description = "Создаёт нового пользователя с заданными параметрами.")
     public UserEntityDto create(
             @Valid @RequestBody AdminCreateOrUpdateUserParams params
     ) {
@@ -73,6 +80,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Обновить пользователя по ID", description = "Обновляет информацию о пользователе с указанным идентификатором.")
     public void update(
             @PathVariable long id,
             @Valid @RequestBody AdminCreateOrUpdateUserParams params
@@ -82,6 +90,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Удалить пользователя", description = "Удаляет пользователя с указанным идентификатором.")
     public void delete(
             @PathVariable long id
     ) {
@@ -90,6 +99,7 @@ public class UserController {
 
     @Hidden
     @GetMapping("/{id}/Is-Exists")
+    @Operation(summary = "Проверить существование пользователя", description = "Проверяет, существует ли пользователь с указанным ID и ролями.")
     public boolean isExists(
             @PathVariable long id,
             @RequestParam Collection<UserRoleEntityId.Role> roles,

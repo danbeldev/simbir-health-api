@@ -18,4 +18,5 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
         description = "JWT Authorization header using the Bearer scheme",
         scheme = "bearer"
 )
-public class OpenApiConfig {}
+public class OpenApiConfig {
+}

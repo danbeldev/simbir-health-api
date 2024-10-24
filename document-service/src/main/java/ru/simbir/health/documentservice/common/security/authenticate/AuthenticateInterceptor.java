@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ValueConstants;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
+import ru.simbir.health.documentservice.common.message.LocalizedMessageService;
 import ru.simbir.health.documentservice.common.security.context.SecurityContextHolder;
 import ru.simbir.health.documentservice.common.security.user.models.UserRole;
 import ru.simbir.health.documentservice.common.security.user.models.UserSessionDetails;
@@ -23,6 +24,8 @@ import java.util.Map;
 public class AuthenticateInterceptor implements HandlerInterceptor {
 
     private final UserServiceClient userServiceClient;
+
+    private final LocalizedMessageService localizedMessageService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -150,7 +153,7 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
             }
         }
 
-        throw new IllegalArgumentException("No argument found with name: " + paramName);
+        throw new IllegalArgumentException(localizedMessageService.getMessage("error.argument.notfound", paramName));
     }
 
     private Object getPathVariableValue(String paramName, HttpServletRequest request) {
@@ -164,7 +167,7 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
             }
         }
 
-        throw new IllegalArgumentException("No path variable found with name: " + paramName);
+        throw new IllegalArgumentException(localizedMessageService.getMessage("error.pathvariable.notfound", paramName));
     }
 
 
@@ -176,7 +179,7 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
         if (!requestParam.required()) {
             return requestParam.defaultValue().equals(ValueConstants.DEFAULT_NONE) ? null : requestParam.defaultValue();
         }
-        throw new IllegalArgumentException("No request parameter found with name: " + paramName);
+        throw new IllegalArgumentException(localizedMessageService.getMessage("error.requestparam.notfound", paramName));
     }
 
     private Object getRequestParamValue(String paramName, HttpServletRequest request) {
@@ -184,6 +187,6 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
         if (paramValues != null && paramValues.length > 0) {
             return paramValues[0];
         }
-        throw new IllegalArgumentException("No request parameter found with name: " + paramName);
+        throw new IllegalArgumentException(localizedMessageService.getMessage("error.requestparam.notfound", paramName));
     }
 }

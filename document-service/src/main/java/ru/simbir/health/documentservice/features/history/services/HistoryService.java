@@ -1,6 +1,6 @@
 package ru.simbir.health.documentservice.features.history.services;
 
-import ru.simbir.health.documentservice.features.history.dto.params.CreateOrUpdateParams;
+import ru.simbir.health.documentservice.features.history.dto.params.CreateOrUpdateHistoryParams;
 import ru.simbir.health.documentservice.features.history.entities.HistoryEntity;
 
 import java.util.List;
@@ -11,7 +11,7 @@ public interface HistoryService {
 
     List<HistoryEntity> getAllByPacientId(Long pacientId);
 
-    HistoryEntity create(CreateOrUpdateParams params);
+    HistoryEntity create(CreateOrUpdateHistoryParams params);
 
-    void update(Long id, CreateOrUpdateParams params);
+    void update(Long id, CreateOrUpdateHistoryParams params);
 }

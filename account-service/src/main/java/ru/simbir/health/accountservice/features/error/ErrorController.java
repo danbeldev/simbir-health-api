@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import ru.simbir.health.accountservice.features.error.dto.ExceptionBody;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
@@ -31,11 +30,9 @@ public class ErrorController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionBody handleValidationException(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-            errors.put(error.getField(), error.getDefaultMessage());
-        }
-        return new ExceptionBody("Validation failed", errors);
+        Optional<FieldError> first = ex.getBindingResult().getFieldErrors().stream().findFirst();
+        String message = first.isPresent() ? first.get().getDefaultMessage() : "Validation failed";
+        return new ExceptionBody(message);
     }
 
     @ExceptionHandler(Exception.class)

@@ -1,4 +1,3 @@
-
 spring:
   config:
     import: optional:file:.env[.properties]
@@ -9,13 +8,6 @@ spring:
     password: ${POSTGRES_PASSWORD}
   application:
     name: account-service
-  jpa:
-    hibernate:
-      ddl-auto: validate
-  sql:
-    init:
-      schema-locations: classpath*:db/schema.sql
-      data-locations: classpath*:db/data.sql
 security:
   jwt:
     access-secret: ${JWT_ACCESS_SECRET}

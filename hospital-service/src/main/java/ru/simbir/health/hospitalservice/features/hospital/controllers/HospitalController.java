@@ -1,10 +1,15 @@
 package ru.simbir.health.hospitalservice.features.hospital.controllers;
 
 import io.swagger.v3.oas.annotations.Hidden;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.simbir.health.hospitalservice.common.security.authenticate.Authenticate;
 import ru.simbir.health.hospitalservice.common.security.user.models.UserRole;
+import ru.simbir.health.hospitalservice.common.validate.pagination.PaginationLimit;
+import ru.simbir.health.hospitalservice.common.validate.pagination.PaginationOffset;
+import ru.simbir.health.hospitalservice.common.validate.pagination.ValidPagination;
 import ru.simbir.health.hospitalservice.features.hospital.dto.HospitalEntityDto;
 import ru.simbir.health.hospitalservice.features.hospital.dto.params.CreateOrUpdateHospitalParams;
 import ru.simbir.health.hospitalservice.features.hospital.dto.room.HospitalRoomEntityDto;
@@ -14,6 +19,7 @@ import ru.simbir.health.hospitalservice.features.hospital.services.HospitalServi
 
 import java.util.List;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/Hospitals")
@@ -26,9 +32,10 @@ public class HospitalController {
 
     @GetMapping
     @Authenticate
+    @ValidPagination
     public List<HospitalEntityDto> getAll(
-            @RequestParam(defaultValue = "0") int from,
-            @RequestParam(defaultValue = "20") int count
+            @PaginationOffset @RequestParam(defaultValue = "0") int from,
+            @PaginationLimit @RequestParam(defaultValue = "20") int count
     ) {
         return hospitalService.getAll(from, count).getContent().stream().map(hospitalEntityMapper::toDto).toList();
     }
@@ -61,7 +68,7 @@ public class HospitalController {
     @PostMapping
     @Authenticate(roles = UserRole.Admin)
     public HospitalEntityDto create(
-            @RequestBody CreateOrUpdateHospitalParams params
+            @Valid @RequestBody CreateOrUpdateHospitalParams params
     ) {
         return hospitalEntityMapper.toDto(hospitalService.create(params));
     }
@@ -70,7 +77,7 @@ public class HospitalController {
     @Authenticate(roles = UserRole.Admin)
     public void update(
             @PathVariable long id,
-            @RequestBody CreateOrUpdateHospitalParams params
+            @Valid @RequestBody CreateOrUpdateHospitalParams params
     ) {
         hospitalService.update(id, params);
     }

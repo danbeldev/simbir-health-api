@@ -1,5 +1,6 @@
 package ru.simbir.health.documentservice.features.history.dto.params;
 
+import jakarta.validation.constraints.NotBlank;
 import ru.simbir.health.documentservice.common.validate.user.ValidUser;
 import ru.simbir.health.documentservice.common.security.user.models.UserRole;
 
@@ -23,11 +24,11 @@ public record CreateOrUpdateHistoryParams(
         @ValidUser(roles = UserRole.Doctor, message = "{error.doctorId.invalid}")
         Long doctorId,
 
-        @NotNull(message = "{error.room.notnull}")
+        @NotBlank(message = "{error.room.notnull}")
         @Size(max = 48, message = "{error.room.tooLong}")
         String room,
 
-        @NotNull(message = "{error.data.notnull}")
+        @NotBlank(message = "{error.data.notnull}")
         @Size(max = 2048, message = "{error.data.tooLong}")
         String data
 ) {}

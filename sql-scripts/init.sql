@@ -52,9 +52,9 @@ CREATE TABLE IF NOT EXISTS active_tokens
 CREATE TABLE IF NOT EXISTS hospitals
 (
     id            BIGINT GENERATED ALWAYS AS IDENTITY,
-    name          VARCHAR(128) NOT NULL,
-    address       VARCHAR(256) NOT NULL,
-    contact_phone VARCHAR(15)  NOT NULL,
+    name          VARCHAR(256) NOT NULL,
+    address       VARCHAR(512) NOT NULL,
+    contact_phone VARCHAR(32)  NOT NULL,
     is_deleted    BOOLEAN      NOT NULL DEFAULT FALSE,
     CONSTRAINT PK__hospitals__key PRIMARY KEY (id)
     );

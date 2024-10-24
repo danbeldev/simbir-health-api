@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import ru.simbir.health.timetableservice.common.message.LocalizedMessageService;
 import ru.simbir.health.timetableservice.features.timetable.dto.params.CreateOrUpdateTimetableParams;
 import ru.simbir.health.timetableservice.features.timetable.dto.params.GetAllTimetablesParams;
 import ru.simbir.health.timetableservice.features.timetable.entities.TimetableEntity;
@@ -21,6 +22,7 @@ import java.util.List;
 public class TimetableServiceImpl implements TimetableService {
 
     private final TimetableRepository timetableRepository;
+    private final LocalizedMessageService localizedMessageService;
 
     @Override
     @Transactional(readOnly = true)
@@ -46,7 +48,8 @@ public class TimetableServiceImpl implements TimetableService {
     @Transactional(readOnly = true)
     public TimetableEntity getById(long id) {
         return timetableRepository.finActiveById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Timetable not found with id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        localizedMessageService.getMessage("error.timetable.notfound", id)));
     }
 
     @Override
@@ -105,14 +108,14 @@ public class TimetableServiceImpl implements TimetableService {
 
     private void validationFromAndToInstants(Instant from, Instant to) {
         if (to.isBefore(from)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Время 'to' должно быть больше 'from'.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, localizedMessageService.getMessage("error.time.invalid"));
         }
 
         validationInstants(from);
         validationInstants(to);
 
         if (Duration.between(from, to).toHours() > 12) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Разница между 'to' и 'from' не должна превышать 12 часов.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, localizedMessageService.getMessage("error.time.range"));
         }
     }
 
@@ -121,7 +124,7 @@ public class TimetableServiceImpl implements TimetableService {
         int seconds = instant.atZone(java.time.ZoneOffset.UTC).getSecond();
 
         if (minutes % 30 != 0 || seconds != 0) {
-            throw new IllegalArgumentException("Минуты должны быть кратны 30, а секунды должны быть равны 0.");
+            throw new IllegalArgumentException(localizedMessageService.getMessage("error.time.minutes.seconds"));
         }
     }
 }

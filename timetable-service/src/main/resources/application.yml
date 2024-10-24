@@ -11,16 +11,14 @@ spring:
     password: ${POSTGRES_PASSWORD}
   application:
     name: timetable-service
-  jpa:
-    hibernate:
-      ddl-auto: validate
-  sql:
-    init:
-      schema-locations: classpath*:db/schema.sql
-      data-locations: classpath*:db/data.sql
 feign:
   clients:
     account:
       url: ${ACCOUNT_SERVICE_URL}
     hospital:
       url: ${HOSPITAL_SERVICE_URL}
+base:
+  locale: ${DEFAULT_LOCALE}
+  min-offset: ${MIN_OFFSET}
+  min-limit: ${MIN_LIMIT}
+  max-limit: ${MAX_LIMIT}

@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import ru.simbir.health.hospitalservice.common.message.LocalizedMessageService;
 import ru.simbir.health.hospitalservice.features.hospital.dto.params.CreateOrUpdateHospitalParams;
 import ru.simbir.health.hospitalservice.features.hospital.entities.HospitalEntity;
 import ru.simbir.health.hospitalservice.features.hospital.entities.HospitalRoomEntity;
@@ -23,14 +24,18 @@ import java.util.stream.Collectors;
 public class HospitalServiceImpl implements HospitalService {
 
     private final HospitalRepository hospitalRepository;
-
     private final HospitalRoomRepository hospitalRoomRepository;
+
+    private final LocalizedMessageService localizedMessageService;
 
     @Override
     @Transactional(readOnly = true)
     public HospitalEntity getById(long id) {
         return hospitalRepository.findActiveById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Hospital not found with id: " + id));
+                .orElseThrow(() -> {
+                    var message = localizedMessageService.getMessage("error.hospital.notfound", id);
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, message);
+                });
     }
 
     @Override
@@ -45,7 +50,8 @@ public class HospitalServiceImpl implements HospitalService {
         var hospital = hospitalRepository.findActiveByIdWithRooms(id);
 
         if (hospital.isEmpty())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Hospital not found with id: " + id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    localizedMessageService.getMessage("error.hospital.notfound", id));
 
         return hospital.get().getRooms();
     }
@@ -99,7 +105,7 @@ public class HospitalServiceImpl implements HospitalService {
         return false;
     }
 
-    private void updateRooms(HospitalEntity hospital, List<String> rooms) {
+    private void updateRooms(HospitalEntity hospital, Set<String> rooms) {
         if (rooms != null && !rooms.isEmpty()) {
             Set<String> existingRoomNames = hospital.getRooms().stream()
                     .map(h -> h.getId().getName())

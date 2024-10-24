@@ -1,6 +1,6 @@
 package ru.simbir.health.hospitalservice.features.hospital.dto.params;
 
-import java.util.List;
+import java.util.Set;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -20,5 +20,5 @@ public record CreateOrUpdateHospitalParams(
         String contactPhone,
 
         @Valid
-        List<@NotBlank(message = "{error.room.notblank}") String> rooms
+        Set<@NotBlank(message = "{error.room.notblank}") @Size(max = 48, message = "{error.room.tooLong}") String> rooms
 ) {}

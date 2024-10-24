@@ -9,6 +9,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
+import ru.simbir.health.timetableservice.common.message.LocalizedMessageService;
 import ru.simbir.health.timetableservice.features.hospital.client.HospitalServiceClient;
 
 import static ru.simbir.health.timetableservice.common.spel.SpelContextUtils.createRequestContext;
@@ -22,6 +23,8 @@ public class ValidHospitalAndRoomAspect {
 
     private final HospitalServiceClient hospitalServiceClient;
 
+    private final LocalizedMessageService localizedMessageService;
+
     @Around("@annotation(validHospitalAndRoom)")
     public Object validation(ProceedingJoinPoint joinPoint, ValidHospitalAndRoom validHospitalAndRoom) throws Throwable {
         var context = createRequestContext(joinPoint);
@@ -30,7 +33,7 @@ public class ValidHospitalAndRoomAspect {
         var room = parser.parseExpression(validHospitalAndRoom.roomFieldName()).getValue(context, String.class);
 
         if (!hospitalServiceClient.validationHospitalAndRoom(hospitalId, room))
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found hospital id or room.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, localizedMessageService.getMessage("error.hospital.or.room.notfound"));
 
         return joinPoint.proceed();
     }

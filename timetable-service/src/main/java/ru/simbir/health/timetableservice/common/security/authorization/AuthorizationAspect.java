@@ -9,7 +9,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.Method;
 
@@ -38,7 +40,7 @@ public class AuthorizationAspect {
         var result = invokeMethodWithSpEL(authorization.value(), context);
 
         if (!(boolean) result) {
-            throw new SecurityException("Access is denied");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         return authorization.executeBefore() ? joinPoint.proceed() : proceedResult;

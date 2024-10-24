@@ -2,6 +2,7 @@ package ru.simbir.health.timetableservice.features.timetable.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.simbir.health.timetableservice.common.security.authenticate.Authenticate;
 import ru.simbir.health.timetableservice.common.security.authorization.Authorization;
@@ -20,6 +21,7 @@ import ru.simbir.health.timetableservice.features.timetable.services.appointment
 import java.time.Instant;
 import java.util.List;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/Timetable")
@@ -77,7 +79,7 @@ public class TimetableController {
     @Authenticate(roles = {UserRole.Admin, UserRole.Manager})
     public void update(
             @PathVariable Long id,
-            @RequestBody CreateOrUpdateTimetableParams params
+            @Valid @RequestBody CreateOrUpdateTimetableParams params
     ) {
         timetableService.update(id, params);
     }
@@ -110,7 +112,7 @@ public class TimetableController {
     @PostMapping("/{id}/Appointments")
     public long createAppointment(
             @PathVariable Long id,
-            @RequestBody CreateAppointmentParams dto,
+            @Valid @RequestBody CreateAppointmentParams dto,
             @UserSession UserSessionDetails userSession
     ) {
         return timetableAppointmentService.create(userSession.getId(), id, dto.time()).getId();

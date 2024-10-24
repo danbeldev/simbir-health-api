@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import ru.simbir.health.timetableservice.common.message.LocalizedMessageService;
 import ru.simbir.health.timetableservice.features.timetable.entities.TimetableAppointmentEntity;
 import ru.simbir.health.timetableservice.features.timetable.repositories.TimetableAppointmentRepository;
 import ru.simbir.health.timetableservice.features.timetable.services.TimetableService;
@@ -21,12 +22,14 @@ public class TimetableAppointmentServiceImpl implements TimetableAppointmentServ
     private final TimetableAppointmentRepository timetableAppointmentRepository;
 
     private final TimetableService timetableService;
+    private final LocalizedMessageService localizedMessageService;
 
     @Override
     @Transactional(readOnly = true)
     public TimetableAppointmentEntity getById(long id) {
         return timetableAppointmentRepository.finActiveById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Appointment not found with id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        localizedMessageService.getMessage("error.appointment.notfound", id)));
     }
 
     @Override

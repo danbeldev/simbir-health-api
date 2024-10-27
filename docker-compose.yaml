@@ -1,32 +1,66 @@
+x-common-environment:
+  &default-env
+  environment:
+    - POSTGRES_HOST=postgres
+    - POSTGRES_USERNAME=postgres
+    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_DATABASE=simbir-health
+    - POSTGRES_SCHEMA=public
+    - JWT_ACCESS_SECRET=qBTmv4oXFFR2GwjexDJ4t6fsIUIUhhXqlktXjXdkcyygs8nPVEwMfo29VDRRepYDVV5IkIxBMzr7OEHXEHd37w
+    - JWT_REFRESH_SECRET=c2Rmc2RuZmpzZGZzZGRzZmpoc2RqYmZzZGZzZGZqc2RqYmZic2Rmd3NkZmpzaGRqZmhzZGpoZmpkc2FzZGF1YmVyZXJic25lYnJzZXJlcmU=
+    - ACCOUNT_SERVICE_URL=http://account-service:8081/api
+    - DOCUMENT_SERVICE_URL=http://document-service:8084
+    - HOSPITAL_SERVICE_URL=http://hospital-service:8082/api/Hospitals
+    - TIMETABLE_SERVICE_URL=http://timetable-service:8083
+    - ELASTICSEARCH_HOST_AND_PORT=elasticsearch:9200
+    - DEFAULT_LOCALE=en
+    - MIN_OFFSET=0
+    - MIN_LIMIT=5
+    - MAX_LIMIT=100
+
 services:
   account-service:
     image: account-service:latest
     build: account-service
     restart: "no"
     ports:
-      - "8080:8080"
-    env_file: .env
+      - "8081:8081"
+    <<: *default-env
+    depends_on:
+      postgres:
+        condition: service_healthy
   document-service:
     image: document-service:latest
     build: document-service
-    restart: "no"
+    restart: "on-failure:10"
     ports:
-      - "8083:8083"
-    env_file: .env
+      - "8084:8084"
+    <<: *default-env
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
   hospital-service:
     image: hospital-service:latest
     build: hospital-service
     restart: "no"
     ports:
-      - "8081:8081"
-    env_file: .env
+      - "8082:8082"
+    <<: *default-env
+    depends_on:
+      postgres:
+        condition: service_healthy
   timetable-service:
     image: timetable-service:latest
     build: timetable-service
     restart: "no"
     ports:
-      - "8082:8082"
-    env_file: .env
+      - "8083:8083"
+    <<: *default-env
+    depends_on:
+      postgres:
+        condition: service_healthy
   postgres:
     image: postgres:17.0
     restart: "no"

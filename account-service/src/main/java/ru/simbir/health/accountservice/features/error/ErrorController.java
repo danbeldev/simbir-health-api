@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,6 +24,7 @@ public class ErrorController {
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ExceptionBody> handleResponseStatusException(ResponseStatusException ex) {
+        if (ex.getReason() == null) return ResponseEntity.status(ex.getStatusCode()).body(null);
         ExceptionBody responseBody = new ExceptionBody(ex.getReason());
         return ResponseEntity.status(ex.getStatusCode()).body(responseBody);
     }
@@ -34,6 +36,10 @@ public class ErrorController {
         String message = first.isPresent() ? first.get().getDefaultMessage() : "Validation failed";
         return new ExceptionBody(message);
     }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public void handleAuthorizationDeniedException() {}
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

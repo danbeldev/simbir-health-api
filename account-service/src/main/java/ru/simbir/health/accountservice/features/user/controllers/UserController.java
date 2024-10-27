@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -55,6 +56,7 @@ public class UserController {
 
     @GetMapping
     @ValidPagination
+    @PreAuthorize("hasRole('Admin')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Получить всех пользователей", description = "Возвращает список всех пользователей с возможностью пагинации.")
     public List<UserEntityDto> getAll(
@@ -70,6 +72,7 @@ public class UserController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('Admin')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Создать нового пользователя", description = "Создаёт нового пользователя с заданными параметрами.")
     public UserEntityDto create(
@@ -79,6 +82,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Обновить пользователя по ID", description = "Обновляет информацию о пользователе с указанным идентификатором.")
     public void update(
@@ -89,6 +93,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Удалить пользователя", description = "Удаляет пользователя с указанным идентификатором.")
     public void delete(

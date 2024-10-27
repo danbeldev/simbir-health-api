@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.simbir.health.accountservice.common.validate.pagination.PaginationLimit;
 import ru.simbir.health.accountservice.common.validate.pagination.PaginationOffset;
@@ -17,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/Doctors")
+@RequestMapping("/api/Doctors")
 @Tag(name = "Доктора", description = "Эндпоинты для получения информации о врачах.")
 public class DoctorsController {
 

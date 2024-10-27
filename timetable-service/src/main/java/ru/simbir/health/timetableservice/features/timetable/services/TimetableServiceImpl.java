@@ -124,7 +124,7 @@ public class TimetableServiceImpl implements TimetableService {
         int seconds = instant.atZone(java.time.ZoneOffset.UTC).getSecond();
 
         if (minutes % 30 != 0 || seconds != 0) {
-            throw new IllegalArgumentException(localizedMessageService.getMessage("error.time.minutes.seconds"));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, localizedMessageService.getMessage("error.time.minutes.seconds"));
         }
     }
 }

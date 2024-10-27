@@ -52,7 +52,12 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
         var authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader == null) return null;
         try {
-            return userServiceClient.validationAccessToken(authorizationHeader.substring(7));
+            var userModel = userServiceClient.validationAccessToken(authorizationHeader.substring(7));
+            if (!userModel.isActive()) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return null;
+            }
+            return userModel;
         } catch (FeignException ex) {
             handleFailedStatus(ex.status(), response);
             return null;

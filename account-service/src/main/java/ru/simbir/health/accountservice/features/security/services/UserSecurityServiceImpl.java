@@ -20,6 +20,7 @@ import ru.simbir.health.accountservice.features.user.entities.UserEntity;
 import ru.simbir.health.accountservice.features.user.entities.role.UserRoleEntityId;
 import ru.simbir.health.accountservice.features.user.services.UserService;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,9 +47,10 @@ public class UserSecurityServiceImpl implements UserSecurityService {
 
         UserEntity savedUser = userService.create(user);
 
-        userService.updateRoles(savedUser, List.of(UserRoleEntityId.Role.User));
+        var roles = List.of(UserRoleEntityId.Role.User);
+        userService.updateRoles(savedUser, roles);
 
-        return generationJwtResponse(savedUser);
+        return generationJwtResponse(savedUser, roles);
     }
 
     @Override
@@ -76,8 +78,8 @@ public class UserSecurityServiceImpl implements UserSecurityService {
         try {
             var authorization = (JwtUserDetails) jwtTokenProvider.getUserDetailsByAccessToken(accessToken);
             return new JwtValidateResponseDto(authorization.getUserId(), authorization.getAuthorities());
-        }catch (JwtException ex) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        } catch (JwtException ex) {
+            return new JwtValidateResponseDto(false);
         }
     }
 
@@ -101,14 +103,24 @@ public class UserSecurityServiceImpl implements UserSecurityService {
         return generationJwtResponse(user, tokenId);
     }
 
+    private JwtResponseDto generationJwtResponse(UserEntity user, Collection<UserRoleEntityId.Role> roles) {
+        UUID tokenId = activeTokenService.create();
+        return generationJwtResponse(user, tokenId, roles);
+    }
+
     private JwtResponseDto generationJwtResponse(UserEntity user, UUID tokenId) {
+        return generationJwtResponse(user, tokenId, user.getRoles().stream().map(r -> r.getId().getRole()).toList());
+    }
+
+    private JwtResponseDto generationJwtResponse(UserEntity user, UUID tokenId, Collection<UserRoleEntityId.Role> roles) {
         String accessToken = jwtTokenProvider.generateAccessToken(tokenId, user);
         String refreshToken = jwtTokenProvider.generateRefreshToken(tokenId, user);
 
         return new JwtResponseDto(
                 user.getId(),
                 accessToken,
-                refreshToken
+                refreshToken,
+                roles
         );
     }
 }

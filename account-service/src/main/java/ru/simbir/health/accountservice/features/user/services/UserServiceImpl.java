@@ -19,6 +19,7 @@ import ru.simbir.health.accountservice.features.user.repositories.UserRepository
 import ru.simbir.health.accountservice.features.user.repositories.UserRoleRepository;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -96,6 +97,11 @@ public class UserServiceImpl implements UserService {
                 .toList();
 
         int start = Math.toIntExact((long) offset * limit);
+
+        if (start >= usersByRole.size()) {
+            return new SliceImpl<>(Collections.emptyList(), PageRequest.of(offset, limit), false);
+        }
+
         int end = Math.min((start + limit), usersByRole.size());
         List<UserEntity> pagedUsers = usersByRole.subList(start, end);
 

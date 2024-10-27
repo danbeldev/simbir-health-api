@@ -42,7 +42,8 @@ public class TimetableController {
     public List<TimetableEntityDto> getAllByHospitalId(
             @PathVariable Long id,
             @RequestParam Instant from,
-            @RequestParam Instant to
+            @RequestParam Instant to,
+            @UserSession UserSessionDetails userSessionDetails
     ) {
         var params = GetAllTimetablesParams.builder().hospitalId(id).from(from).to(to).build();
         return timetableService.getAll(params).stream().map(timetableEntityMapper::toDto).toList();

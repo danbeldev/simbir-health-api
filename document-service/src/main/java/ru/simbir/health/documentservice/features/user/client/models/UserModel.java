@@ -7,7 +7,8 @@ import java.util.Collection;
 
 public record UserModel(
         Long userId,
-        Collection<UserRole> roles
+        Collection<UserRole> roles,
+        Boolean active
 ) implements UserSessionDetails {
 
     @Override
@@ -18,5 +19,10 @@ public record UserModel(
     @Override
     public Collection<UserRole> getRoles() {
         return roles;
+    }
+
+    @Override
+    public Boolean isActive() {
+        return active;
     }
 }

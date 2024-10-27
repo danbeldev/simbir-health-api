@@ -7,4 +7,6 @@ public interface UserSessionDetails {
     Long getId();
 
     Collection<UserRole> getRoles();
+
+    default Boolean isActive() { return true; }
 }

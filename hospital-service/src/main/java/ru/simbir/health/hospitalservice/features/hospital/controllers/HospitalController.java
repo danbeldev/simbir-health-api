@@ -61,6 +61,7 @@ public class HospitalController {
         return hospitalService.getAllRoomsByHospitalId(id).stream().map(hospitalRoomEntityMapper::toDto).toList();
     }
 
+    @Authenticate
     @GetMapping("/{hospitalId}/Room/Validation")
     @Operation(summary = "Проверка валидности больницы и комнаты", description = "Проверяет, существует ли указанная комната в заданной больнице.")
     boolean validationHospitalAndRoom(

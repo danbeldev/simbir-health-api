@@ -42,7 +42,6 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.POST, "/api/Authentication/SignIn").permitAll()
                             .requestMatchers(HttpMethod.POST, "/api/Authentication/Refresh").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/Authentication/Validate").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/api/Accounts/{id}/Is-Exists").permitAll()
                             .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
                             .anyRequest().authenticated();

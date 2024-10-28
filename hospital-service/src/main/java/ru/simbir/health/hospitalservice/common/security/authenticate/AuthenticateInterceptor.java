@@ -32,6 +32,9 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
             if (authenticate != null) {
                 var userDetails = authenticate(request, response);
                 if (userDetails == null) {
+                    if (response.getStatus() == HttpServletResponse.SC_OK) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
                     return false;
                 }
 

@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 import ru.simbir.health.timetableservice.common.message.LocalizedMessageService;
+import ru.simbir.health.timetableservice.common.security.context.SecurityContextHolder;
 import ru.simbir.health.timetableservice.features.hospital.client.HospitalServiceClient;
 
 import static ru.simbir.health.timetableservice.common.spel.SpelContextUtils.createRequestContext;
@@ -34,7 +35,7 @@ public class ValidHospitalAndRoomAspect {
         var room = parser.parseExpression(validHospitalAndRoom.roomFieldName()).getValue(context, String.class);
 
         try {
-            if (!hospitalServiceClient.validationHospitalAndRoom(hospitalId, room))
+            if (!hospitalServiceClient.validationHospitalAndRoom(hospitalId, room, SecurityContextHolder.getContext().getAccessToken()))
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, localizedMessageService.getMessage("error.hospital.or.room.notfound"));
         } catch (FeignException ex) {
             if (ex.status() == -1) {

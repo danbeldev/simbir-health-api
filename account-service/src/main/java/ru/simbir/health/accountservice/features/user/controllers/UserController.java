@@ -103,6 +103,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/Is-Exists")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Проверить существование пользователя", description = "Проверяет, существует ли пользователь с указанным ID и ролями.")
     public boolean isExists(
             @PathVariable long id,

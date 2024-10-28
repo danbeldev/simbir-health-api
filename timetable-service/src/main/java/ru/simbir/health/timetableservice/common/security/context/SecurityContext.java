@@ -8,4 +8,5 @@ import ru.simbir.health.timetableservice.common.security.user.models.UserSession
 @Setter
 public class SecurityContext {
     private UserSessionDetails userSession;
+    private String accessToken;
 }

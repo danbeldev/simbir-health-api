@@ -33,6 +33,7 @@ public class HistoryController {
 
     private final HistoryEntityMapper historyEntityMapper;
 
+    @Authenticate
     @GetMapping("/search")
     @Operation(summary = "Поиск истории посещений", description = "Ищет историю посещений по заданному запросу.")
     public List<HistoryDocument> search(

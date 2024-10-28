@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import ru.simbir.health.timetableservice.features.error.dto.ExceptionBody;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Optional;
 
 @RestControllerAdvice
@@ -38,6 +39,15 @@ public class ErrorController {
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<?> handleValidationException(ValidationException ex) {
+        if (ex.getCause() instanceof ResponseStatusException responseStatusException) {
+            return handleResponseStatusException(responseStatusException);
+        }else {
+            return handleException(ex);
+        }
+    }
+
+    @ExceptionHandler(UndeclaredThrowableException.class)
+    public ResponseEntity<?> handleUndeclaredThrowableException(UndeclaredThrowableException ex) {
         if (ex.getCause() instanceof ResponseStatusException responseStatusException) {
             return handleResponseStatusException(responseStatusException);
         }else {

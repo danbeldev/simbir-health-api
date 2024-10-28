@@ -56,6 +56,9 @@ public class TimetableAppointmentServiceImpl implements TimetableAppointmentServ
     @Override
     @Transactional
     public TimetableAppointmentEntity create(long userId, long timetableId, Instant time) {
+        if (getAvailableAppointments(timetableId).stream().noneMatch(a -> a.equals(time))) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Time not found");
+        }
         var timetable = timetableService.getById(timetableId);
         var appointment = new TimetableAppointmentEntity();
         appointment.setTime(time);

@@ -37,10 +37,14 @@ public class AuthorizationAspect {
             context.setVariable(parameterNames[i], args[i]);
         }
 
-        var result = invokeMethodWithSpEL(authorization.value(), context);
+        try {
+            var result = invokeMethodWithSpEL(authorization.value(), context);
 
-        if (!(boolean) result) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            if (!(boolean) result) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+        }catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
         return authorization.executeBefore() ? joinPoint.proceed() : proceedResult;

@@ -84,18 +84,20 @@ public class UserSecurityServiceImpl implements UserSecurityService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public JwtResponseDto refreshToken(JwtRefreshParams params) {
         if (!jwtTokenProvider.validateRefreshToken(params.refreshToken())) {
             var message = localizedMessageService.getMessage("token.invalid.refresh");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
         }
 
+        UUID tokenId = jwtTokenProvider.getTokenIdWithRefreshToken(params.refreshToken());
+        activeTokenService.deleteById(tokenId);
+
         String username = jwtTokenProvider.getUsernameWithRefreshToken(params.refreshToken());
         UserEntity user = userService.getByUsername(username);
-        UUID tokenId = jwtTokenProvider.getTokenIdWithRefreshToken(params.refreshToken());
 
-        return generationJwtResponse(user, tokenId);
+        return generationJwtResponse(user);
     }
 
     private JwtResponseDto generationJwtResponse(UserEntity user) {

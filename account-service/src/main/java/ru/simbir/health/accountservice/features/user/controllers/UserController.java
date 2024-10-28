@@ -1,6 +1,5 @@
 package ru.simbir.health.accountservice.features.user.controllers;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -102,7 +101,6 @@ public class UserController {
         userService.softDelete(id);
     }
 
-    @Hidden
     @GetMapping("/{id}/Is-Exists")
     @Operation(summary = "Проверить существование пользователя", description = "Проверяет, существует ли пользователь с указанным ID и ролями.")
     public boolean isExists(

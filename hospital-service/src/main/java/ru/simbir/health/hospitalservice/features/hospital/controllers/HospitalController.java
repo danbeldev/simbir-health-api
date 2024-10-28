@@ -1,7 +1,6 @@
 package ru.simbir.health.hospitalservice.features.hospital.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -62,7 +61,6 @@ public class HospitalController {
         return hospitalService.getAllRoomsByHospitalId(id).stream().map(hospitalRoomEntityMapper::toDto).toList();
     }
 
-    @Hidden
     @GetMapping("/{hospitalId}/Room/Validation")
     @Operation(summary = "Проверка валидности больницы и комнаты", description = "Проверяет, существует ли указанная комната в заданной больнице.")
     boolean validationHospitalAndRoom(

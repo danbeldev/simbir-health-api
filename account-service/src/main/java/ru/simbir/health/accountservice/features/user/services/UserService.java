@@ -33,7 +33,7 @@ public interface UserService {
 
     UserEntity create(UserEntity user);
 
-    void softDelete(long id);
+    void softDelete(long id, String accessToken);
 
     boolean isExists(long id, Collection<UserRoleEntityId.Role> roles, boolean requireAll);
 

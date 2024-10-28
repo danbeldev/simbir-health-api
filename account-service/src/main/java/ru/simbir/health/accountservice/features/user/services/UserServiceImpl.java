@@ -1,5 +1,6 @@
 package ru.simbir.health.accountservice.features.user.services;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.simbir.health.accountservice.common.message.LocalizedMessageService;
+import ru.simbir.health.accountservice.features.timetable.client.TimetableServiceClient;
 import ru.simbir.health.accountservice.features.user.dto.params.AdminCreateOrUpdateUserParams;
 import ru.simbir.health.accountservice.features.user.dto.params.CreateOrUpdateUserParams;
 import ru.simbir.health.accountservice.features.user.entities.UserEntity;
@@ -34,6 +36,8 @@ public class UserServiceImpl implements UserService {
     private final LocalizedMessageService localizedMessageService;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final TimetableServiceClient timetableServiceClient;
 
     @Override
     @Transactional(readOnly = true)
@@ -135,10 +139,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void softDelete(long id) {
+    public void softDelete(long id, String accessToken) {
         var user = getById(id);
         user.setIsDeleted(true);
         userRepository.save(user);
+
+        if (user.getRoles().stream().anyMatch(r -> r.getId().getRole() == UserRoleEntityId.Role.Doctor)) {
+            try {
+                timetableServiceClient.deleteByHospitalId(id, accessToken);
+            }catch (FeignException ex) {
+                if (ex.status() == -1) {
+                    throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE);
+                }else {
+                    throw ex;
+                }
+            }
+        }
     }
 
     @Override

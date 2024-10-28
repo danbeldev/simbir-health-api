@@ -96,9 +96,10 @@ public class UserController {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Удалить пользователя", description = "Удаляет пользователя с указанным идентификатором.")
     public void delete(
-            @PathVariable long id
+            @PathVariable long id,
+            @RequestHeader("Authorization") String token
     ) {
-        userService.softDelete(id);
+        userService.softDelete(id, token);
     }
 
     @GetMapping("/{id}/Is-Exists")

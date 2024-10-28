@@ -1,5 +1,6 @@
 package ru.simbir.health.hospitalservice.features.hospital.services;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -8,12 +9,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.simbir.health.hospitalservice.common.message.LocalizedMessageService;
+import ru.simbir.health.hospitalservice.common.security.context.SecurityContextHolder;
 import ru.simbir.health.hospitalservice.features.hospital.dto.params.CreateOrUpdateHospitalParams;
 import ru.simbir.health.hospitalservice.features.hospital.entities.HospitalEntity;
 import ru.simbir.health.hospitalservice.features.hospital.entities.HospitalRoomEntity;
 import ru.simbir.health.hospitalservice.features.hospital.entities.HospitalRoomEntityId;
 import ru.simbir.health.hospitalservice.features.hospital.repositories.HospitalRepository;
 import ru.simbir.health.hospitalservice.features.hospital.repositories.HospitalRoomRepository;
+import ru.simbir.health.hospitalservice.features.timetable.client.TimetableServiceClient;
 
 import java.util.List;
 import java.util.Set;
@@ -27,6 +30,8 @@ public class HospitalServiceImpl implements HospitalService {
     private final HospitalRoomRepository hospitalRoomRepository;
 
     private final LocalizedMessageService localizedMessageService;
+
+    private final TimetableServiceClient timetableServiceClient;
 
     @Override
     @Transactional(readOnly = true)
@@ -85,6 +90,15 @@ public class HospitalServiceImpl implements HospitalService {
         var hospital = getById(id);
         hospital.setIsDeleted(true);
         hospitalRepository.save(hospital);
+        try {
+            timetableServiceClient.deleteByHospitalId(id, SecurityContextHolder.getContext().getAccessToken());
+        }catch (FeignException ex) {
+            if (ex.status() == -1) {
+                throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE);
+            }else {
+                throw ex;
+            }
+        }
     }
 
     @Override

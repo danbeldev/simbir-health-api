@@ -42,6 +42,7 @@ public class AuthenticateInterceptor implements HandlerInterceptor {
 
                 var customContext = SecurityContextHolder.getContext();
                 customContext.setUserSession(userDetails);
+                customContext.setAccessToken(request.getHeader("Authorization"));
             }
         }
 

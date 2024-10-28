@@ -15,6 +15,10 @@ security:
 server:
   port: 8081
   forward-headers-strategy: framework
+feign:
+  clients:
+    timetable:
+      url: ${TIMETABLE_SERVICE_URL}
 base:
   locale: ${DEFAULT_LOCALE}
   min-offset: ${MIN_OFFSET}

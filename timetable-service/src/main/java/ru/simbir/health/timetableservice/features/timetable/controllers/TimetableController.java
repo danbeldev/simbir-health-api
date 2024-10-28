@@ -41,8 +41,8 @@ public class TimetableController {
             description = "Возвращает расписание больницы по заданному ID.")
     public List<TimetableEntityDto> getAllByHospitalId(
             @PathVariable Long id,
-            @RequestParam Instant from,
-            @RequestParam Instant to,
+            @RequestParam(required = false) Instant from,
+            @RequestParam(required = false) Instant to,
             @UserSession UserSessionDetails userSessionDetails
     ) {
         var params = GetAllTimetablesParams.builder().hospitalId(id).from(from).to(to).build();
@@ -55,8 +55,8 @@ public class TimetableController {
             description = "Возвращает расписание врача по заданному ID.")
     public List<TimetableEntityDto> getAllByDoctorId(
             @PathVariable Long id,
-            @RequestParam Instant from,
-            @RequestParam Instant to
+            @RequestParam(required = false) Instant from,
+            @RequestParam(required = false) Instant to
     ) {
         var params = GetAllTimetablesParams.builder().doctorId(id).from(from).to(to).build();
         return timetableService.getAll(params).stream().map(timetableEntityMapper::toDto).toList();
@@ -69,8 +69,8 @@ public class TimetableController {
     public List<TimetableEntityDto> getAllByHospitalIdAndRoom(
             @PathVariable Long id,
             @PathVariable String room,
-            @RequestParam Instant from,
-            @RequestParam Instant to
+            @RequestParam(required = false) Instant from,
+            @RequestParam(required = false) Instant to
     ) {
         var params = GetAllTimetablesParams.builder().hospitalId(id).room(room).from(from).to(to).build();
         return timetableService.getAll(params).stream().map(timetableEntityMapper::toDto).toList();

@@ -27,7 +27,8 @@ public class TimetableServiceImpl implements TimetableService {
     @Override
     @Transactional(readOnly = true)
     public List<TimetableEntity> getAll(GetAllTimetablesParams params) {
-        Specification<TimetableEntity> spec = Specification.where(TimetableSpecifications.active());
+        Specification<TimetableEntity> spec = Specification.where(TimetableSpecifications.active())
+                .and(TimetableSpecifications.hasDateRange(params.getFrom(), params.getTo()));
 
         if (params.getDoctorId() != null) {
             spec = spec.and(TimetableSpecifications.byDoctorId(params.getDoctorId()));
